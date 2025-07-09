@@ -23,6 +23,21 @@
 
 ---
 
+<!-- TOC -->
+
+- [⚡ EV Charger Server](#-ev-charger-server)
+    - [🚀 Features](#-features)
+    - [🛠️ Tech Stack](#-tech-stack)
+    - [🐳 Docker Support](#-docker-support)
+    - [⚙️ Environment Variables](#-environment-variables)
+    - [📂 Project Structure](#-project-structure)
+    - [📘 API Documentation](#-api-documentation)
+    - [📄 License](#-license)
+
+<!-- /TOC -->
+
+---
+
 ## 🚀 Features
 
 - **🔐 User Management**
