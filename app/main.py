@@ -1888,6 +1888,11 @@ def download_report(
     )
 
 
+@app.get("/", include_in_schema=False)
+def root_redirect():
+    return RedirectResponse(url="/dashboard")
+
+
 # --- Exception handler to redirect 401 to login on dashboard paths ---
 
 
