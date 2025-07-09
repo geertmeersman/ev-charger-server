@@ -1,0 +1,36 @@
+# Ignore Python cache and compiled files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Ignore environment files
+.env
+.env.*
+
+# Ignore database files
+*.sqlite3
+
+# Ignore OS/system files
+.DS_Store
+Thumbs.db
+
+# Ignore version control and config files
+.git
+.gitignore
+
+# Ignore Docker-specific files you don’t want in the image
+.dockerignore
+
+# Ignore IDE/editor folders
+.vscode/
+.idea/
+
+# Ignore test folders or coverage files if present
+tests/
+coverage/
+*.cover
+*.log
+
+# Node (if frontend assets are used locally)
+node_modules/

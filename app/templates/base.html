@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon/favicon-16x16.png">
+    <link rel="icon" href="/static/favicon/favicon.ico" type="image/x-icon">
+    <link rel="manifest" href="/static/favicon/site.webmanifest">
+    <title>{{appName}} - {% block title %}{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body
+    class="ev-background from-blue-100 to-indigo-200 min-h-screen flex flex-col justify-center items-center font-sans">
+    <div class="flex flex-col justify-center items-center w-full flex-1 mt-2">
+        <!-- Title with flashing green icon -->
+        <div class="flex items-center space-x-3 text-4xl font-bold text-white mb-6">
+            <!-- Flashing green electricity icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-green-400 flash" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span>{{appName}}</span>
+        </div>
+        <div class="bg-white rounded-lg shadow-lg p-10 max-w-md w-full">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+    <footer class="mb-4 text-center text-sm text-white mb-2 mt-6">
+        &copy; {{ now().year }} Geert Meersman - {{ appInfo }} - All rights reserved.
+    </footer>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const firstInput = document.querySelector('input:not([type="hidden"])');
+            if (firstInput) {
+                firstInput.focus();
+            }
+        });
+    </script>
+</body>
+
+</html>

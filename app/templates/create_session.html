@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Create Charging Session{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-extrabold text-indigo-900 mb-6 text-center">Create Charging Session</h1>
+<!-- Feedback message -->
+<div id="session-alert" class="hidden p-4 rounded-lg mb-4 text-sm"></div>
+
+<form id="create-session-form" class="space-y-5">
+    <div>
+        <label for="charger_id" class="block font-medium text-gray-700 mb-1">Charger</label>
+        <select id="charger_id" name="charger_id" required
+            class="w-full border rounded-md px-4 py-2 focus:ring-2 focus:ring-indigo-500" {% if chargers|length==1 %}
+            disabled {% endif %}>
+            <option value="">Select a charger</option>
+            {% for charger in chargers %}
+            <option value="{{ charger.charger_id }}" {% if chargers|length==1 %} selected {% endif %}>
+                {{ charger.charger_id }}
+            </option>
+            {% endfor %}
+        </select>
+
+    </div>
+
+    <div>
+        <label for="tag" class="block font-medium text-gray-700 mb-1">Tag (optional)</label>
+        <input type="text" id="tag" name="tag"
+            class="w-full border rounded-md px-4 py-2 focus:ring-2 focus:ring-indigo-500" />
+    </div>
+
+    <div>
+        <label for="start_time" class="block font-medium text-gray-700 mb-1">Start Time</label>
+        <input type="datetime-local" id="start_time" name="start_time" required
+            class="w-full border rounded-md px-4 py-2 focus:ring-2 focus:ring-indigo-500" />
+    </div>
+
+    <div>
+        <label for="end_time" class="block font-medium text-gray-700 mb-1">End Time</label>
+        <input type="datetime-local" id="end_time" name="end_time" required
+            class="w-full border rounded-md px-4 py-2 focus:ring-2 focus:ring-indigo-500" />
+    </div>
+
+    <div>
+        <label for="energy_charged_kwh" class="block font-medium text-gray-700 mb-1">Energy Charged
+            (kWh)</label>
+        <input type="number" id="energy_charged_kwh" name="energy_charged_kwh" step="0.01" min="0" required
+            class="w-full border rounded-md px-4 py-2 focus:ring-2 focus:ring-indigo-500" />
+    </div>
+
+    <button type="submit"
+        class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-md shadow transition duration-300">
+        Create Session
+    </button>
+</form>
+<!-- Back to dashboard -->
+<div class="mt-2">
+    <a href="/dashboard"
+        class="w-full inline-block text-center border border-gray-400 text-gray-700 font-semibold text-sm py-1.5 rounded-md hover:bg-gray-100 transition duration-200">
+        Back to the dashboard
+    </a>
+</div>
+<script>
+    const form = document.getElementById("create-session-form");
+    const alertBox = document.getElementById("session-alert");
+
+    function showAlert(type, message) {
+        const colors = {
+            info: "bg-blue-100 text-blue-800 border-blue-300",
+            success: "bg-green-100 text-green-800 border-green-300",
+            error: "bg-red-100 text-red-800 border-red-300"
+        };
+        alertBox.className = `block p-4 rounded-lg border ${colors[type]} mb-4 text-sm`;
+        alertBox.innerText = message;
+    }
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        showAlert("info", "Saving session...");
+
+        const charger_id = document.getElementById("charger_id").value;
+
+        const tagInput = document.getElementById("tag").value.trim();
+        const tag = tagInput === "" ? null : tagInput;
+
+        const start_time = new Date(document.getElementById("start_time").value);
+        const end_time = new Date(document.getElementById("end_time").value);
+        const energy_charged_kwh = parseFloat(document.getElementById("energy_charged_kwh").value);
+
+        if (end_time <= start_time) {
+            showAlert("error", "End time must be after start time.");
+            return;
+        }
+
+        const duration_seconds = Math.floor((end_time - start_time) / 1000);
+
+        const payload = {
+            charger_id,
+            tag,
+            start_time: start_time.toISOString(),
+            end_time: end_time.toISOString(),
+            duration_seconds,
+            energy_charged_kwh
+        };
+
+        try {
+            const res = await fetch("/charger/session", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": "{{ apiKey }}" || ""
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                const error = await res.json();
+                throw new Error(error.detail || "Failed to create session");
+            }
+
+            const result = await res.json();
+            showAlert("success", "Charging session saved successfully! ✅");
+
+            form.reset();
+        } catch (err) {
+            showAlert("error", err.message || "Something went wrong.");
+        }
+    });
+</script>
+{% endblock %}

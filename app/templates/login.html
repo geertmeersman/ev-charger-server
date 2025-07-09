@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+
+{% block content %}
+    <h1 class="text-3xl font-extrabold text-indigo-900 mb-6 text-center">Login</h1>
+
+    {% if msg == "registered" %}
+    <div class="text-green-600 text-sm text-center mb-4 font-semibold">
+      Account created successfully. Please log in.
+    </div>
+    {% elif msg == "invalid" %}
+    <div class="text-red-600 text-sm text-center mb-4 font-semibold">
+      Invalid username or password.
+    </div>
+    {% elif msg == "sent" %}
+    <div class="text-green-600 text-sm text-center mb-4 font-semibold">
+      If the email exists, a password reset link has been sent.
+    </div>
+    {% elif msg == "sentusername" %}
+    <div class="text-green-600 text-sm text-center mb-4 font-semibold">
+      If the email exists, an email with the username has been sent.
+    </div>
+    {% elif msg == "pwdreset" %}
+    <div class="text-green-600 text-sm text-center mb-4 font-semibold">
+      Your password was set.<br />You can use your new password now to log in.
+    </div>
+    {% endif %}
+
+
+    <form method="post" action="/dashboard/login" class="space-y-6">
+      <div>
+        <label for="username" class="block text-gray-700 font-semibold mb-2">Username</label>
+        <input type="text" id="username" name="username" required
+          class="w-full px-4 py-3 border rounded-md text-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+          placeholder="Enter your username" />
+      </div>
+
+      <div>
+        <label for="password" class="block text-gray-700 font-semibold mb-2">Password</label>
+        <input type="password" id="password" name="password" required
+          class="w-full px-4 py-3 border rounded-md text-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+          placeholder="Enter your password" />
+      </div>
+
+      <button type="submit"
+        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-md shadow transition duration-300">
+        Login
+      </button>
+    </form>
+
+    <!-- Reset password button -->
+    <div class="mt-2">
+      <a href="/user/reset-password"
+        class="w-full inline-block text-center border border-gray-400 text-gray-700 font-semibold text-sm py-1.5 rounded-md hover:bg-gray-100 transition duration-200">
+        Forgot password?
+      </a>
+    </div>
+
+    <!-- Username recovery button -->
+    <div class="mt-2">
+      <a href="/user/username-recovery"
+        class="w-full inline-block text-center border border-gray-400 text-gray-700 font-semibold text-sm py-1.5 rounded-md hover:bg-gray-100 transition duration-200">
+        Forgot username?
+      </a>
+    </div>
+
+    <!-- New User Registration Button -->
+    <div class="mt-2">
+      <a href="/user/register"
+        class="w-full inline-block text-center border border-gray-400 text-gray-700 font-semibold text-sm py-1.5 rounded-md hover:bg-gray-100 transition duration-200">
+        New user? Create an account
+      </a>
+    </div>
+
+{% endblock %}

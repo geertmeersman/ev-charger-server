@@ -1,0 +1,12 @@
+services:
+  ev-charger-server:
+    container_name: ev-charger-server
+    build: .
+    environment:
+      - PYTHONPATH=/app
+    volumes:
+      - ./data/sqlite:/app/data
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
