@@ -32,6 +32,7 @@
     - [⚙️ Environment Variables](#-environment-variables)
     - [📂 Project Structure](#-project-structure)
     - [📘 API Documentation](#-api-documentation)
+    - [🔐 Security Note](#-security-note)
     - [📄 License](#-license)
 
 <!-- /TOC -->
@@ -160,6 +161,18 @@ Once running, the following documentation is available:
 
 - **Swagger (OpenAPI)**: [`/docs`](http://localhost:8000/docs)
 - **ReDoc**: [`/redoc`](http://localhost:8000/redoc)
+
+---
+
+## 🔐 Security Note
+
+⚠️ **This server runs in plain HTTP (not HTTPS) by default.** It is strongly recommended to place a reverse proxy (such as **NGINX**, **Caddy**, or **Traefik**) in front of this application to:
+
+- Terminate TLS (serve HTTPS)
+- Manage domains and ports
+- Enable logging, rate limiting, and request filtering
+
+You can also run this behind a secure load balancer or a platform (e.g. Fly.io, Render, Heroku) that provides HTTPS.
 
 ---
 
