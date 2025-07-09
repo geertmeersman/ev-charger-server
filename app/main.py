@@ -542,6 +542,7 @@ def register_charger(
     new = models.Charger(
         charger_id=info.charger_id,
         description=info.description,
+        cost_kwh=info.cost_kwh,
         registered_at=datetime.utcnow(),
         latitude=info.latitude,
         longitude=info.longitude,
@@ -660,7 +661,9 @@ def receive_charging_status(
         .first()
     )
 
-    cost_value = status.cost if status.cost is not None else charger_obj.cost_kwh * status.energy
+    cost_value = (
+        status.cost if status.cost is not None else charger_obj.cost_kwh * status.energy
+    )
 
     if existing:
         existing.seconds = status.seconds
@@ -869,7 +872,11 @@ def charger_session_minimal(
     start_time = end_time - timedelta(seconds=session.seconds)
 
     # Calculate cost
-    cost_value = session.cost if session.cost is not None else charger_obj.cost_kwh * session.energy
+    cost_value = (
+        session.cost
+        if session.cost is not None
+        else charger_obj.cost_kwh * session.energy
+    )
 
     # Create and store ChargingSession
     db_session = models.ChargingSession(
@@ -1745,6 +1752,24 @@ def show_create_session_form(
     )
 
 
+@app.get("/dashboard/create-charger", response_class=HTMLResponse, tags=["UI"])
+def show_create_charger_form(
+    request: Request,
+    user: models.User = Depends(get_user_from_cookie),
+):
+    return templates.TemplateResponse(
+        "create_charger.html",
+        {
+            "request": request,
+            "user": user,
+            "apiKey": user.api_key,
+            "appName": APP_NAME,
+            "appInfo": APP_INFO,
+            "now": datetime.utcnow,
+        },
+    )
+
+
 @app.post("/import-nexxtmove-csv", tags=["Charger"])
 async def import_csv(
     charger_id: int = Form(...),
@@ -1795,7 +1820,11 @@ async def import_csv(
     )
 
 
-@app.get("/reports/download", summary="Download charging session report as PDF", tags=["Reports"])
+@app.get(
+    "/reports/download",
+    summary="Download charging session report as PDF",
+    tags=["Reports"],
+)
 def download_report(
     username: str = Query(...),
     start_date: str = Query(..., description="YYYY-MM-DD"),
