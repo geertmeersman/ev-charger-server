@@ -2,618 +2,627 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href="/static/favicon/favicon.ico" type="image/x-icon" />
-    <link rel="stylesheet" href="/static/css/style.css" />
-    <title>{{appName}}</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.fullscreen@1.6.0/Control.FullScreen.css" />
-    <script src="https://unpkg.com/leaflet.fullscreen@1.6.0/Control.FullScreen.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="/static/favicon/favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <title>{{appName}}</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.fullscreen@1.6.0/Control.FullScreen.css" />
+  <script src="https://unpkg.com/leaflet.fullscreen@1.6.0/Control.FullScreen.js"></script>
 </head>
 
 <body class="ev-background bg-black min-h-screen text-white font-sans">
 
-    <!-- Header -->
-    <header class="flex items-center justify-between px-6 py-4 border-b border-gray-700">
-        <!-- Title with flash icon -->
-        <div class="flex items-center space-x-3 text-3xl font-bold">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-400 flash" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+  <!-- Header -->
+  <header class="flex items-center justify-between px-6 py-4 border-b border-gray-700">
+    <!-- Title with flash icon -->
+    <div class="flex items-center space-x-3 text-3xl font-bold">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-400 flash" fill="none" viewBox="0 0 24 24"
+        stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+      <span>{{appName}}</span>
+    </div>
+
+    <!-- Admin info + dropdown -->
+    <div class="flex items-center space-x-4">
+      <!-- Charger selector -->
+      <form method="get" action="/dashboard" class="flex items-center space-x-2">
+        <!-- Charger icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M7 16V4a1 1 0 011-1h8a1 1 0 011 1v12m-2 4h-4m2-4v4" />
+        </svg>
+        {% if chargers|length == 0 %}
+        <div class="text-sm text-gray-300 px-2 py-1">
+          No chargers registered yet.
+          <a href="/dashboard/create-charger"
+            class="ml-2 inline-block bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 transition">
+            + Create Charger
+          </a>
+        </div>
+        {% elif chargers|length == 1 %}
+        <div class="text-sm text-gray-300 px-2 py-1">
+          {{ chargers[0].charger_id }}
+        </div>
+        {% else %}
+        <select name="charger" onchange="this.form.submit()"
+          class="bg-gray-800 text-white text-sm border border-gray-600 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <option value="all">All Chargers</option>
+          {% for charger in chargers %}
+          <option value="{{ charger.id }}" {% if selected_charger==charger.id|string %}selected{% endif %}>
+            {{ charger.charger_id }}
+          </option>
+          {% endfor %}
+        </select>
+        {% endif %}
+      </form>
+
+      <div class="flex items-center space-x-2">
+        <span class="text-white font-semibold">{{ user.username }}</span>
+        <a href="/dashboard/logout" class="text-sm text-gray-300 hover:text-red-400">Logout</a>
+      </div>
+    </div>
+  </header>
+
+
+  <main class="w-full max-w-7xl p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-screen-xl mx-auto">
+
+    {% if chargers|length > 0 %}
+    <!-- Full-width Charger Info section -->
+    <section id="charger-section"
+      class="bg-zinc-900/80 rounded-xl p-6 shadow-lg lg:col-span-2 transition-all duration-500">
+      {% set charger = chargers | selectattr('id', 'equalto', selected_charger | int) | first %}
+      <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M7 16V4a1 1 0 011-1h8a1 1 0 011 1v12m-2 4h-4m2-4v4" />
+        </svg>
+        Charger Information for {{ charger.charger_id }}
+      </h2>
+
+      <div class="flex flex-wrap gap-4">
+        <!-- Description -->
+        <div
+          class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow focus:outline-none min-w-[180px]">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-pink-400" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-6 8h4m-4 4h4" />
+          </svg>
+          <div>
+            <p class="text-xs font-semibold">Description</p>
+            <p class="text-sm truncate max-w-[120px]">{{ charger.description or "No description" }}</p>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div
+          class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow focus:outline-none min-w-[120px]">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2l4 -4" />
+          </svg>
+          <div>
+            <p class="text-xs font-semibold">Status</p>
+            <p id="status-{{ charger.charger_id }}" class="text-sm">–</p>
+          </div>
+        </div>
+
+        <!-- Energy -->
+        <div
+          class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow focus:outline-none min-w-[140px]">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          <div>
+            <p class="text-xs font-semibold">Energy (kWh)</p>
+            <p id="energy-{{ charger.charger_id }}" class="text-sm">–</p>
+          </div>
+        </div>
+
+        <!-- Duration -->
+        <div
+          class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow focus:outline-none min-w-[140px]">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3" />
+            <circle cx="12" cy="12" r="10" stroke-width="2" />
+          </svg>
+          <div>
+            <p class="text-xs font-semibold">Duration</p>
+            <p id="seconds-{{ charger.charger_id }}" class="text-sm">– sec</p>
+          </div>
+        </div>
+
+        <!-- Cost -->
+        <div
+          class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow focus:outline-none min-w-[140px]">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 5H9a4 4 0 000 8h6m-6 0a4 4 0 000 8h8" />
+          </svg>
+          <div>
+            <p class="text-xs font-semibold">Cost (€)</p>
+            <p id="cost-{{ charger.charger_id }}" class="text-sm">–</p>
+          </div>
+        </div>
+
+        {% if charger.latitude is not none and charger.longitude is not none %}
+        <!-- Location -->
+        <div
+          class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow focus:outline-none min-w-[160px] cursor-pointer border border-transparent hover:border-green-400 transition-colors duration-200"
+          data-lat="{{ charger.latitude }}" data-lng="{{ charger.longitude }}" data-id="{{ charger.charger_id }}"
+          onclick="toggleMap(this)">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-cyan-400" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 11c1.104 0 2-.896 2-2s-.896-2-2-2s-2 .896-2 2s.896 2 2 2zm0 0c-2.21 0-4 1.79-4 4c0 2.5 4 7 4 7s4-4.5 4-7c0-2.21-1.79-4-4-4z" />
+          </svg>
+          <div>
+            <p class="text-xs font-semibold">Location</p>
+            <p class="text-sm truncate max-w-[100px]">
+              {{ "%.4f" | format(charger.latitude) }}, {{ "%.4f" | format(charger.longitude) }}
+            </p>
+          </div>
+        </div>
+        {% endif %}
+
+      </div>
+      <div id="map-{{ charger.charger_id }}" class="w-full hidden mt-6">
+        <div class="bg-zinc-800 p-4 rounded-xl shadow-lg">
+          <h3 class="text-sm font-semibold text-gray-200 mb-2 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-cyan-400" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 11c1.104 0 2-.896 2-2s-.896-2-2-2s-2 .896-2 2s.896 2 2 2zm0 0c-2.21 0-4 1.79-4 4c0 2.5 4 7 4 7s4-4.5 4-7c0-2.21-1.79-4-4-4z" />
             </svg>
-            <span>{{appName}}</span>
+            Map Location
+          </h3>
+          <div class="map rounded-lg" style="height: 300px;"></div>
         </div>
+      </div>
 
-        <!-- Admin info + dropdown -->
-        <div class="flex items-center space-x-4">
-            <!-- Charger selector -->
-            <form method="get" action="/dashboard" class="flex items-center space-x-2">
-                <!-- Charger icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M7 16V4a1 1 0 011-1h8a1 1 0 011 1v12m-2 4h-4m2-4v4" />
-                </svg>
-                {% if chargers|length > 1 %}
-                <select name="charger" onchange="this.form.submit()"
-                    class="bg-gray-800 text-white text-sm border border-gray-600 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <option value="all">All Chargers</option>
-                    {% for charger in chargers %}
-                    <option value="{{ charger.id }}" {% if selected_charger==charger.id|string %}selected{% endif %}>
-                        {{ charger.charger_id }}
-                    </option>
-                    {% endfor %}
-                </select>
-                {% else %}
-                <div class="text-sm text-gray-300 px-2 py-1">
-                    {{ chargers[0].charger_id }}
-                </div>
-                {% endif %}
-            </form>
+      <div class="flex gap-2 mt-4 hidden" id="edit-{{ charger.charger_id }}">
+        <button class="bg-pink-600 hover:bg-pink-700 text-white px-3 py-1 rounded shadow text-sm"
+          onclick="openEditModal('{{ charger.charger_id }}', '{{ charger.description }}', '{{ charger.latitude }}', '{{ charger.longitude }}');">
+          ✏️ Edit
+        </button>
+        <button class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded shadow text-sm"
+          onclick="openDeleteModal('{{ charger.charger_id }}');">
+          🗑️ Delete
+        </button>
+      </div>
+      </div>
+    </section>
+    {% endif %}
 
-            <div class="flex items-center space-x-2">
-                <span class="text-white font-semibold">{{ user.username }}</span>
-                <a href="/dashboard/logout" class="text-sm text-gray-300 hover:text-red-400">Logout</a>
-            </div>
+    <!-- Section 1: Daily Charging by Month -->
+    <section class="bg-zinc-900/80 rounded-xl p-6 shadow-lg">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold flex items-center gap-2 text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 17v-6h13v6m-6 4V5a2 2 0 00-2-2H5a2 2 0 00-2 2v16" />
+          </svg>
+          Daily Charging by Month
+        </h2>
+        <div class="flex items-center gap-2">
+          <button id="prevMonthBtn"
+            class="px-3 py-1 rounded-md bg-gray-700/80 hover:bg-gray-500/80 text-white text-sm transition border border-green-400 cursor-pointer hidden">
+            <svg class="inline h-4 w-4 text-white mr-1" fill="currentColor" viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd"
+                d="M12.707 15.707a1 1 0 01-1.414 0L6.586 11l4.707-4.707a1 1 0 011.414 1.414L9.414 11l3.293 3.293a1 1 0 010 1.414z"
+                clip-rule="evenodd" />
+            </svg>
+          </button>
+          <select id="monthSelect"
+            class="rounded-md bg-zinc-800 px-3 py-1 text-gray-200 font-semibold focus:outline-none"></select>
+          <button id="nextMonthBtn"
+            class="px-3 py-1 rounded-md bg-gray-700/80 hover:bg-gray-500/80 text-white text-sm transition border border-green-400 cursor-pointer hidden">
+            <svg class="inline h-4 w-4 text-white ml-1" fill="currentColor" viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd"
+                d="M7.293 4.293a1 1 0 011.414 0L13.414 9l-4.707 4.707a1 1 0 01-1.414-1.414L10.586 9 7.293 5.707a1 1 0 010-1.414z"
+                clip-rule="evenodd" />
+            </svg>
+          </button>
         </div>
-    </header>
+      </div>
+      <p id="dailyTotalKwh" class="text-lg text-green-300 font-semibold mb-2 text-center"></p>
+      <canvas id="dailyChart" class="rounded-lg shadow-md bg-black/50 h-56 sm:h-72 lg:h-96"></canvas>
+    </section>
+
+    <!-- Section 2: Monthly Sessions & kWh Charged -->
+    <section class="bg-zinc-900/80 rounded-xl p-6 shadow-lg">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold flex items-center gap-2">
+          <!-- Chart icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M11 3v18M4 12h7m4 0h5M4 6h16M4 18h16" />
+          </svg>
+          Monthly Sessions & kWh Charged
+        </h2>
+        <select id="yearSelect" class="rounded-md bg-zinc-800 px-3 py-1 text-gray-200 font-semibold focus:outline-none">
+          <!-- options will be populated dynamically -->
+        </select>
+      </div>
+      <p id="yearTotal" class="text-lg text-green-300 font-semibold mb-2 text-center"></p>
+      <canvas id="monthlyChart" class="rounded-lg shadow-md bg-black/50 h-56 sm:h-72 lg:h-96"></canvas>
+    </section>
+
+    <!-- Section 3: Last 12 Months Summary -->
+    <section class="bg-zinc-900/80 rounded-xl p-6 shadow-lg">
+      <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+        <!-- Table icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M3 10h18M3 14h18M9 6h6M4 6h.01M20 6h.01M4 18h.01M20 18h.01" />
+        </svg>
+        Last 12 Months Summary
+      </h2>
+      <div class="overflow-x-auto">
+        <table id="summaryTable" class="min-w-full border-collapse border border-gray-700 text-sm">
+          <thead class="bg-black/90 text-green-400">
+            <tr>
+              <th class="border border-gray-600 px-4 py-2 font-semibold">Month</th>
+              <th class="border border-gray-600 px-4 py-2 font-semibold">Sessions</th>
+              <th class="border border-gray-600 px-4 py-2 font-semibold">Total kWh</th>
+            </tr>
+          </thead>
+          <tbody class="bg-black/70 text-gray-300"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 4: Charging Sessions -->
+    <section class="bg-zinc-900/80 rounded-xl p-6 shadow-lg">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold flex items-center gap-2">
+          <!-- Bolt icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L6 14h7v7l7-11h-7z" />
+          </svg>
+          Charging Sessions
+        </h2>
+        <!-- Right-aligned buttons -->
+        <div class="flex gap-3">
+          <!-- Import CSV Button -->
+          <a href="/dashboard/import-nexxtmove-csv"
+            class="flex items-center gap-2 rounded-md bg-indigo-700 px-3 py-1 text-white font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-green-400">
+            <!-- Upload icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12V4m0 0L8 8m4-4l4 4" />
+            </svg>
+            Import CSV
+          </a>
+
+          <!-- Create Session Button -->
+          <a href="/dashboard/create-session"
+            class="flex items-center gap-2 rounded-md bg-green-600 px-3 py-1 text-white font-semibold text-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400">
+            <!-- Plus icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Create Session
+          </a>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto mb-4">
+        <table id="sessionsTable" class="min-w-full border-collapse border border-gray-700 text-sm">
+          <thead class="bg-black/90 text-green-400">
+            <tr>
+              <th class="border border-gray-600 px-4 py-2 font-semibold">Tag</th>
+              <th class="border border-gray-600 px-4 py-2 font-semibold">Start Time</th>
+              <th class="border border-gray-600 px-4 py-2 font-semibold">End Time</th>
+              <th class="border border-gray-600 px-4 py-2 font-semibold">kWh Charged</th>
+              <th class="border border-gray-600 px-4 py-2 font-semibold">Duration</th>
+              <th class="border border-gray-600 px-2 py-2 font-semibold">&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody id="sessionsTableBody" class="bg-black/70 text-gray-300">
+            <!-- rows populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+
+      <div id="paginationControls" class="flex gap-2 justify-center mt-4"></div>
+    </section>
+  </main>
 
 
-    <main class="w-full max-w-7xl p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-screen-xl mx-auto">
+  <footer class="text-center text-sm text-white mt-6 py-2">
+    &copy; {{ now().year }} Geert Meersman - {{ appInfo }} - All rights reserved.
+  </footer>
 
-        <!-- Full-width Charger Info section -->
-        <section id="charger-section"
-            class="bg-zinc-900/80 rounded-xl p-6 shadow-lg lg:col-span-2 transition-all duration-500">
-            {% set charger = chargers | selectattr('id', 'equalto', selected_charger | int) | first %}
-            <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M7 16V4a1 1 0 011-1h8a1 1 0 011 1v12m-2 4h-4m2-4v4" />
-                </svg>
-                Charger Information for {{ charger.charger_id }}
-            </h2>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    let API_KEY = "{{ user.api_key }}";
 
-            <div class="flex flex-wrap gap-4">
-                <!-- Description -->
-                <div
-                    class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow focus:outline-none min-w-[180px]">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-pink-400" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8 7V3m8 4V3m-6 8h4m-4 4h4" />
-                    </svg>
-                    <div>
-                        <p class="text-xs font-semibold">Description</p>
-                        <p class="text-sm truncate max-w-[120px]">{{ charger.description or "No description" }}</p>
-                    </div>
-                </div>
+    const dailyCtx = document.getElementById('dailyChart').getContext('2d');
+    const monthSelect = document.getElementById('monthSelect');
+    const prevMonthBtn = document.getElementById('prevMonthBtn');
+    const nextMonthBtn = document.getElementById('nextMonthBtn');
 
-                <!-- Status -->
-                <div
-                    class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow focus:outline-none min-w-[120px]">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2l4 -4" />
-                    </svg>
-                    <div>
-                        <p class="text-xs font-semibold">Status</p>
-                        <p id="status-{{ charger.charger_id }}" class="text-sm">–</p>
-                    </div>
-                </div>
+    let dailyChart;
+    let availableMonths = [];
+    let currentMonth = null;
 
-                <!-- Energy -->
-                <div
-                    class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow focus:outline-none min-w-[140px]">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                    <div>
-                        <p class="text-xs font-semibold">Energy (kWh)</p>
-                        <p id="energy-{{ charger.charger_id }}" class="text-sm">–</p>
-                    </div>
-                </div>
+    async function fetchDailySessions(month) {
+      const res = await fetch(`/dashboard/daily_sessions?month=${month}`);
+      if (!res.ok) {
+        console.error("Failed to fetch daily data");
+        return null;
+      }
+      return await res.json();
+    }
 
-                <!-- Duration -->
-                <div
-                    class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow focus:outline-none min-w-[140px]">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3" />
-                        <circle cx="12" cy="12" r="10" stroke-width="2" />
-                    </svg>
-                    <div>
-                        <p class="text-xs font-semibold">Duration</p>
-                        <p id="seconds-{{ charger.charger_id }}" class="text-sm">– sec</p>
-                    </div>
-                </div>
+    function renderDailyChart(data) {
+      const labels = data.daily_data.map(d => d.day);
+      const kwh = data.daily_data.map(d => d.kwh);
+      document.getElementById('dailyTotalKwh').textContent =
+        `Total kWh charged in ${data.month}: ${data.daily_data.reduce((sum, d) => sum + d.kwh, 0).toFixed(2)} kWh`;
 
-                <!-- Cost -->
-                <div
-                    class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow focus:outline-none min-w-[140px]">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 5H9a4 4 0 000 8h6m-6 0a4 4 0 000 8h8" />
-                    </svg>
-                    <div>
-                        <p class="text-xs font-semibold">Cost (€)</p>
-                        <p id="cost-{{ charger.charger_id }}" class="text-sm">–</p>
-                    </div>
-                </div>
-
-                <!-- Location -->
-                <div class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow focus:outline-none min-w-[160px] cursor-pointer border border-transparent hover:border-green-400 transition-colors duration-200"
-                    data-lat="{{ charger.latitude }}" data-lng="{{ charger.longitude }}"
-                    data-id="{{ charger.charger_id }}" onclick="toggleMap(this)">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-cyan-400" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 11c1.104 0 2-.896 2-2s-.896-2-2-2s-2 .896-2 2s.896 2 2 2zm0 0c-2.21 0-4 1.79-4 4c0 2.5 4 7 4 7s4-4.5 4-7c0-2.21-1.79-4-4-4z" />
-                    </svg>
-                    <div>
-                        <p class="text-xs font-semibold">Location</p>
-                        <p class="text-sm truncate max-w-[100px]">
-                            {{ "%.4f" | format(charger.latitude) }}, {{ "%.4f" | format(charger.longitude) }}
-                        </p>
-                    </div>
-                </div>
-
-            </div>
-            <div id="map-{{ charger.charger_id }}" class="w-full hidden mt-6">
-                <div class="bg-zinc-800 p-4 rounded-xl shadow-lg">
-                    <h3 class="text-sm font-semibold text-gray-200 mb-2 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-cyan-400" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 11c1.104 0 2-.896 2-2s-.896-2-2-2s-2 .896-2 2s.896 2 2 2zm0 0c-2.21 0-4 1.79-4 4c0 2.5 4 7 4 7s4-4.5 4-7c0-2.21-1.79-4-4-4z" />
-                        </svg>
-                        Map Location
-                    </h3>
-                    <div class="map rounded-lg" style="height: 300px;"></div>
-                </div>
-            </div>
-
-            <div class="flex gap-2 mt-4 hidden" id="edit-{{ charger.charger_id }}">
-                <button class="bg-pink-600 hover:bg-pink-700 text-white px-3 py-1 rounded shadow text-sm"
-                    onclick="openEditModal('{{ charger.charger_id }}', '{{ charger.description }}', '{{ charger.latitude }}', '{{ charger.longitude }}');">
-                    ✏️ Edit
-                </button>
-                <button class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded shadow text-sm"
-                    onclick="openDeleteModal('{{ charger.charger_id }}');">
-                    🗑️ Delete
-                </button>
-            </div>
-            </div>
-        </section>
-
-        <!-- Section 1: Daily Charging by Month -->
-        <section class="bg-zinc-900/80 rounded-xl p-6 shadow-lg">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-bold flex items-center gap-2 text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 17v-6h13v6m-6 4V5a2 2 0 00-2-2H5a2 2 0 00-2 2v16" />
-                    </svg>
-                    Daily Charging by Month
-                </h2>
-                <div class="flex items-center gap-2">
-                    <button id="prevMonthBtn"
-                        class="px-3 py-1 rounded-md bg-gray-700/80 hover:bg-gray-500/80 text-white text-sm transition border border-green-400 cursor-pointer hidden">
-                        <svg class="inline h-4 w-4 text-white mr-1" fill="currentColor" viewBox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd"
-                                d="M12.707 15.707a1 1 0 01-1.414 0L6.586 11l4.707-4.707a1 1 0 011.414 1.414L9.414 11l3.293 3.293a1 1 0 010 1.414z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </button>
-                    <select id="monthSelect"
-                        class="rounded-md bg-zinc-800 px-3 py-1 text-gray-200 font-semibold focus:outline-none"></select>
-                    <button id="nextMonthBtn"
-                        class="px-3 py-1 rounded-md bg-gray-700/80 hover:bg-gray-500/80 text-white text-sm transition border border-green-400 cursor-pointer hidden">
-                        <svg class="inline h-4 w-4 text-white ml-1" fill="currentColor" viewBox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd"
-                                d="M7.293 4.293a1 1 0 011.414 0L13.414 9l-4.707 4.707a1 1 0 01-1.414-1.414L10.586 9 7.293 5.707a1 1 0 010-1.414z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <p id="dailyTotalKwh" class="text-lg text-green-300 font-semibold mb-2 text-center"></p>
-            <canvas id="dailyChart" class="rounded-lg shadow-md bg-black/50 h-56 sm:h-72 lg:h-96"></canvas>
-        </section>
-
-        <!-- Section 2: Monthly Sessions & kWh Charged -->
-        <section class="bg-zinc-900/80 rounded-xl p-6 shadow-lg">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-bold flex items-center gap-2">
-                    <!-- Chart icon -->
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M11 3v18M4 12h7m4 0h5M4 6h16M4 18h16" />
-                    </svg>
-                    Monthly Sessions & kWh Charged
-                </h2>
-                <select id="yearSelect"
-                    class="rounded-md bg-zinc-800 px-3 py-1 text-gray-200 font-semibold focus:outline-none">
-                    <!-- options will be populated dynamically -->
-                </select>
-            </div>
-            <p id="yearTotal" class="text-lg text-green-300 font-semibold mb-2 text-center"></p>
-            <canvas id="monthlyChart" class="rounded-lg shadow-md bg-black/50 h-56 sm:h-72 lg:h-96"></canvas>
-        </section>
-
-        <!-- Section 3: Last 12 Months Summary -->
-        <section class="bg-zinc-900/80 rounded-xl p-6 shadow-lg">
-            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-                <!-- Table icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 10h18M3 14h18M9 6h6M4 6h.01M20 6h.01M4 18h.01M20 18h.01" />
-                </svg>
-                Last 12 Months Summary
-            </h2>
-            <div class="overflow-x-auto">
-                <table id="summaryTable" class="min-w-full border-collapse border border-gray-700 text-sm">
-                    <thead class="bg-black/90 text-green-400">
-                        <tr>
-                            <th class="border border-gray-600 px-4 py-2 font-semibold">Month</th>
-                            <th class="border border-gray-600 px-4 py-2 font-semibold">Sessions</th>
-                            <th class="border border-gray-600 px-4 py-2 font-semibold">Total kWh</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-black/70 text-gray-300"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Section 4: Charging Sessions -->
-        <section class="bg-zinc-900/80 rounded-xl p-6 shadow-lg">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-bold flex items-center gap-2">
-                    <!-- Bolt icon -->
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13 10V3L6 14h7v7l7-11h-7z" />
-                    </svg>
-                    Charging Sessions
-                </h2>
-                <!-- Right-aligned buttons -->
-                <div class="flex gap-3">
-                    <!-- Import CSV Button -->
-                    <a href="/dashboard/import-nexxtmove-csv"
-                        class="flex items-center gap-2 rounded-md bg-indigo-700 px-3 py-1 text-white font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-green-400">
-                        <!-- Upload icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12V4m0 0L8 8m4-4l4 4" />
-                        </svg>
-                        Import CSV
-                    </a>
-
-                    <!-- Create Session Button -->
-                    <a href="/dashboard/create-session"
-                        class="flex items-center gap-2 rounded-md bg-green-600 px-3 py-1 text-white font-semibold text-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400">
-                        <!-- Plus icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                        Create Session
-                    </a>
-                </div>
-            </div>
-
-            <div class="overflow-x-auto mb-4">
-                <table id="sessionsTable" class="min-w-full border-collapse border border-gray-700 text-sm">
-                    <thead class="bg-black/90 text-green-400">
-                        <tr>
-                            <th class="border border-gray-600 px-4 py-2 font-semibold">Tag</th>
-                            <th class="border border-gray-600 px-4 py-2 font-semibold">Start Time</th>
-                            <th class="border border-gray-600 px-4 py-2 font-semibold">End Time</th>
-                            <th class="border border-gray-600 px-4 py-2 font-semibold">kWh Charged</th>
-                            <th class="border border-gray-600 px-4 py-2 font-semibold">Duration</th>
-                            <th class="border border-gray-600 px-2 py-2 font-semibold">&nbsp;</th>
-                        </tr>
-                    </thead>
-                    <tbody id="sessionsTableBody" class="bg-black/70 text-gray-300">
-                        <!-- rows populated dynamically -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div id="paginationControls" class="flex gap-2 justify-center mt-4"></div>
-        </section>
-    </main>
-
-
-    <footer class="text-center text-sm text-white mt-6 py-2">
-        &copy; {{ now().year }} Geert Meersman - {{ appInfo }} - All rights reserved.
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        let API_KEY = "{{ user.api_key }}";
-
-        const dailyCtx = document.getElementById('dailyChart').getContext('2d');
-        const monthSelect = document.getElementById('monthSelect');
-        const prevMonthBtn = document.getElementById('prevMonthBtn');
-        const nextMonthBtn = document.getElementById('nextMonthBtn');
-
-        let dailyChart;
-        let availableMonths = [];
-        let currentMonth = null;
-
-        async function fetchDailySessions(month) {
-            const res = await fetch(`/dashboard/daily_sessions?month=${month}`);
-            if (!res.ok) {
-                console.error("Failed to fetch daily data");
-                return null;
+      const config = {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: `kWh Charged for ${data.month}`,
+            data: kwh,
+            backgroundColor: 'rgba(16, 185, 129, 0.7)',
+            borderColor: 'rgba(16, 185, 129, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: true }, tooltip: { enabled: true } },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: { display: true, text: 'kWh' }
             }
-            return await res.json();
+          }
         }
+      };
 
-        function renderDailyChart(data) {
-            const labels = data.daily_data.map(d => d.day);
-            const kwh = data.daily_data.map(d => d.kwh);
-            document.getElementById('dailyTotalKwh').textContent =
-                `Total kWh charged in ${data.month}: ${data.daily_data.reduce((sum, d) => sum + d.kwh, 0).toFixed(2)} kWh`;
+      if (dailyChart) dailyChart.destroy();
+      dailyChart = new Chart(dailyCtx, config);
+    }
 
-            const config = {
-                type: 'bar',
-                data: {
-                    labels,
-                    datasets: [{
-                        label: `kWh Charged for ${data.month}`,
-                        data: kwh,
-                        backgroundColor: 'rgba(16, 185, 129, 0.7)',
-                        borderColor: 'rgba(16, 185, 129, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { display: true }, tooltip: { enabled: true } },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: { display: true, text: 'kWh' }
-                        }
-                    }
-                }
-            };
+    function populateMonthOptions(months, selected) {
+      monthSelect.innerHTML = '';
+      months.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = m;
+        monthSelect.appendChild(opt);
+      });
+      if (months.includes(selected)) monthSelect.value = selected;
+    }
 
-            if (dailyChart) dailyChart.destroy();
-            dailyChart = new Chart(dailyCtx, config);
-        }
+    function updateNavButtons() {
+      const index = availableMonths.indexOf(currentMonth);
+      prevMonthBtn.classList.toggle('hidden', index <= 0);
+      nextMonthBtn.classList.toggle('hidden', index >= availableMonths.length - 1);
+      if (index > 0) prevMonthBtn.onclick = () => loadDailyData(availableMonths[index - 1]);
+      if (index < availableMonths.length - 1) nextMonthBtn.onclick = () => loadDailyData(availableMonths[index + 1]);
+    }
 
-        function populateMonthOptions(months, selected) {
-            monthSelect.innerHTML = '';
-            months.forEach(m => {
-                const opt = document.createElement('option');
-                opt.value = m;
-                opt.textContent = m;
-                monthSelect.appendChild(opt);
-            });
-            if (months.includes(selected)) monthSelect.value = selected;
-        }
+    async function loadDailyData(month = null) {
+      const data = await fetchDailySessions(month || new Date().toISOString().slice(0, 7));
+      if (!data) return;
+      availableMonths = data.available_months;
+      currentMonth = data.month;
+      populateMonthOptions(availableMonths, currentMonth);
+      renderDailyChart(data);
+      updateNavButtons();
+    }
 
-        function updateNavButtons() {
-            const index = availableMonths.indexOf(currentMonth);
-            prevMonthBtn.classList.toggle('hidden', index <= 0);
-            nextMonthBtn.classList.toggle('hidden', index >= availableMonths.length - 1);
-            if (index > 0) prevMonthBtn.onclick = () => loadDailyData(availableMonths[index - 1]);
-            if (index < availableMonths.length - 1) nextMonthBtn.onclick = () => loadDailyData(availableMonths[index + 1]);
-        }
+    window.addEventListener('resize', () => {
+      if (dailyChart) dailyChart.resize();
+      // Repeat for other charts, e.g., monthlyChart.resize();
+    });
 
-        async function loadDailyData(month = null) {
-            const data = await fetchDailySessions(month || new Date().toISOString().slice(0, 7));
-            if (!data) return;
-            availableMonths = data.available_months;
-            currentMonth = data.month;
-            populateMonthOptions(availableMonths, currentMonth);
-            renderDailyChart(data);
-            updateNavButtons();
-        }
 
-        window.addEventListener('resize', () => {
-            if (dailyChart) dailyChart.resize();
-            // Repeat for other charts, e.g., monthlyChart.resize();
+    monthSelect.addEventListener('change', () => loadDailyData(monthSelect.value));
+    loadDailyData();
+
+
+
+    function populateYearOptions(select, availableYears, selectedYear) {
+      // Clear any existing options
+      select.innerHTML = '';
+      availableYears.sort((a, b) => b - a); // Optional: ensure descending order
+
+      // Add each year as an option
+      availableYears.forEach((y) => {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y;
+        select.appendChild(opt);
+      });
+
+      // Set selected year, fallback to current year if not in the list
+      if (availableYears.includes(selectedYear)) {
+        select.value = selectedYear;
+      } else {
+        select.value = availableYears[availableYears.length - 1]; // last option as fallback
+      }
+    }
+    // Generate new API key request
+    async function generateApiKey() {
+      try {
+        const res = await fetch('/user/generate_api_key', {
+          method: 'GET',
+          headers: { 'x-api-key': API_KEY || '' }
         });
+        if (!res.ok) throw new Error('Failed to generate API key');
+        const data = await res.json();
+        document.getElementById('apiKey').textContent = data.api_key;
+        const msg = document.getElementById('apiKeyMessage');
+        msg.textContent = 'New API key generated!';
+        API_KEY = data.api_key;
+        msg.classList.remove('hidden');
+        setTimeout(() => msg.classList.add('hidden'), 4000);
+      } catch (e) {
+        alert('Error generating new API key: ' + e);
+      }
+    }
 
+    // Monthly sessions and kWh chart
+    const ctx = document.getElementById('monthlyChart').getContext('2d');
+    const yearSelect = document.getElementById('yearSelect');
+    const summaryTableBody = document.querySelector('#summaryTable tbody');
+    const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-        monthSelect.addEventListener('change', () => loadDailyData(monthSelect.value));
-        loadDailyData();
+    let chart;
 
+    async function fetchMonthlySessions(year) {
+      let url = '/dashboard/monthly_sessions';
+      if (year) url += '?year=' + year;
+      const response = await fetch(url, {
+        headers: { 'x-api-key': API_KEY || '' }
+      });
+      if (!response.ok) {
+        console.error('Failed to fetch monthly session data');
+        return null;
+      }
+      return await response.json();
+    }
 
+    function renderYearChart(data) {
+      const sessions = data.monthly_data.map(d => d.sessions);
+      const kwh = data.monthly_data.map(d => d.kwh);
+      document.getElementById('yearTotal').textContent =
+        `Total ${data.year}: ${data.year_summary.total_energy_kwh} kWh in ${data.year_summary.total_sessions} sessions`;
 
-        function populateYearOptions(select, availableYears, selectedYear) {
-            // Clear any existing options
-            select.innerHTML = '';
-            availableYears.sort((a, b) => b - a); // Optional: ensure descending order
-
-            // Add each year as an option
-            availableYears.forEach((y) => {
-                const opt = document.createElement('option');
-                opt.value = y;
-                opt.textContent = y;
-                select.appendChild(opt);
-            });
-
-            // Set selected year, fallback to current year if not in the list
-            if (availableYears.includes(selectedYear)) {
-                select.value = selectedYear;
-            } else {
-                select.value = availableYears[availableYears.length - 1]; // last option as fallback
+      const config = {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: `Sessions in ${data.year}`,
+              data: sessions,
+              backgroundColor: 'rgba(99, 102, 241, 0.7)',
+              borderColor: 'rgba(99, 102, 241, 1)',
+              borderWidth: 2,
+              fill: false,
+              tension: 0.3,
+              yAxisID: 'y1',
+              pointRadius: 5,
+              pointHoverRadius: 7,
+            },
+            {
+              label: `Total kWh in ${data.year}`,
+              data: kwh,
+              backgroundColor: 'rgba(16, 185, 129, 0.7)',
+              borderColor: 'rgba(16, 185, 129, 1)',
+              borderWidth: 2,
+              fill: false,
+              tension: 0.3,
+              yAxisID: 'y2',
+              pointRadius: 5,
+              pointHoverRadius: 7,
             }
-        }
-        // Generate new API key request
-        async function generateApiKey() {
-            try {
-                const res = await fetch('/user/generate_api_key', {
-                    method: 'GET',
-                    headers: { 'x-api-key': API_KEY || '' }
-                });
-                if (!res.ok) throw new Error('Failed to generate API key');
-                const data = await res.json();
-                document.getElementById('apiKey').textContent = data.api_key;
-                const msg = document.getElementById('apiKeyMessage');
-                msg.textContent = 'New API key generated!';
-                API_KEY = data.api_key;
-                msg.classList.remove('hidden');
-                setTimeout(() => msg.classList.add('hidden'), 4000);
-            } catch (e) {
-                alert('Error generating new API key: ' + e);
+          ]
+        },
+        options: {
+          responsive: true,
+          interaction: { mode: 'index', intersect: false },
+          plugins: { legend: { display: true, position: 'top' }, tooltip: { enabled: true } },
+          scales: {
+            y1: {
+              type: 'linear',
+              position: 'left',
+              title: { display: true, text: 'Sessions' },
+              beginAtZero: true,
+            },
+            y2: {
+              type: 'linear',
+              position: 'right',
+              title: { display: true, text: 'kWh' },
+              beginAtZero: true,
+              grid: { drawOnChartArea: false }
             }
+          }
         }
+      };
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, config);
+    }
 
-        // Monthly sessions and kWh chart
-        const ctx = document.getElementById('monthlyChart').getContext('2d');
-        const yearSelect = document.getElementById('yearSelect');
-        const summaryTableBody = document.querySelector('#summaryTable tbody');
-        const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-        let chart;
-
-        async function fetchMonthlySessions(year) {
-            let url = '/dashboard/monthly_sessions';
-            if (year) url += '?year=' + year;
-            const response = await fetch(url, {
-                headers: { 'x-api-key': API_KEY || '' }
-            });
-            if (!response.ok) {
-                console.error('Failed to fetch monthly session data');
-                return null;
-            }
-            return await response.json();
-        }
-
-        function renderYearChart(data) {
-            const sessions = data.monthly_data.map(d => d.sessions);
-            const kwh = data.monthly_data.map(d => d.kwh);
-            document.getElementById('yearTotal').textContent =
-                `Total ${data.year}: ${data.year_summary.total_energy_kwh} kWh in ${data.year_summary.total_sessions} sessions`;
-
-            const config = {
-                type: 'line',
-                data: {
-                    labels,
-                    datasets: [
-                        {
-                            label: `Sessions in ${data.year}`,
-                            data: sessions,
-                            backgroundColor: 'rgba(99, 102, 241, 0.7)',
-                            borderColor: 'rgba(99, 102, 241, 1)',
-                            borderWidth: 2,
-                            fill: false,
-                            tension: 0.3,
-                            yAxisID: 'y1',
-                            pointRadius: 5,
-                            pointHoverRadius: 7,
-                        },
-                        {
-                            label: `Total kWh in ${data.year}`,
-                            data: kwh,
-                            backgroundColor: 'rgba(16, 185, 129, 0.7)',
-                            borderColor: 'rgba(16, 185, 129, 1)',
-                            borderWidth: 2,
-                            fill: false,
-                            tension: 0.3,
-                            yAxisID: 'y2',
-                            pointRadius: 5,
-                            pointHoverRadius: 7,
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    interaction: { mode: 'index', intersect: false },
-                    plugins: { legend: { display: true, position: 'top' }, tooltip: { enabled: true } },
-                    scales: {
-                        y1: {
-                            type: 'linear',
-                            position: 'left',
-                            title: { display: true, text: 'Sessions' },
-                            beginAtZero: true,
-                        },
-                        y2: {
-                            type: 'linear',
-                            position: 'right',
-                            title: { display: true, text: 'kWh' },
-                            beginAtZero: true,
-                            grid: { drawOnChartArea: false }
-                        }
-                    }
-                }
-            };
-            if (chart) chart.destroy();
-            chart = new Chart(ctx, config);
-        }
-
-        function renderSummaryTable(summary) {
-            summaryTableBody.innerHTML = '';
-            const months = Object.keys(summary).sort().reverse();
-            months.forEach(monthKey => {
-                const [year, month] = monthKey.split('-');
-                const monthIndex = parseInt(month, 10) - 1;
-                const monthName = labels[monthIndex];
-                const data = summary[monthKey];
-                summaryTableBody.innerHTML += `
+    function renderSummaryTable(summary) {
+      summaryTableBody.innerHTML = '';
+      const months = Object.keys(summary).sort().reverse();
+      months.forEach(monthKey => {
+        const [year, month] = monthKey.split('-');
+        const monthIndex = parseInt(month, 10) - 1;
+        const monthName = labels[monthIndex];
+        const data = summary[monthKey];
+        summaryTableBody.innerHTML += `
           <tr>
             <td class="border border-gray-600 px-4 py-2">${monthName} ${year}</td>
             <td class="border border-gray-600 px-4 py-2">${data.sessions}</td>
             <td class="border border-gray-600 px-4 py-2">${data.kwh.toFixed(2)}</td>
           </tr>
         `;
-            });
-        }
+      });
+    }
 
-        function formatDuration(seconds) {
-            const hours = Math.floor(seconds / 3600);
-            const minutes = Math.floor((seconds % 3600) / 60);
-            let result = '';
-            if (hours > 0) result += `${hours}h`;
-            if (minutes > 0) result += `${minutes}m`;
-            if (hours === 0 && minutes === 0) result += `${seconds}s`;
-            return result;
-        }
+    function formatDuration(seconds) {
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      let result = '';
+      if (hours > 0) result += `${hours}h`;
+      if (minutes > 0) result += `${minutes}m`;
+      if (hours === 0 && minutes === 0) result += `${seconds}s`;
+      return result;
+    }
 
-        async function loadData(year) {
-            const data = await fetchMonthlySessions(year);
-            if (!data) return;
-            populateYearOptions(yearSelect, data.available_years, data.year);
-            renderYearChart(data);
-            renderSummaryTable(data.last_12_months_summary);
-        }
-        let currentPage = 1;
+    async function loadData(year) {
+      const data = await fetchMonthlySessions(year);
+      if (!data) return;
+      populateYearOptions(yearSelect, data.available_years, data.year);
+      renderYearChart(data);
+      renderSummaryTable(data.last_12_months_summary);
+    }
+    let currentPage = 1;
 
-        async function loadSessions(page = 1) {
-            try {
-                const res = await fetch(`/dashboard/sessions?page=${page}`, {
-                    headers: { 'x-api-key': API_KEY || '' }
-                });
-                if (!res.ok) throw new Error('Failed to load sessions');
-                const data = await res.json();
+    async function loadSessions(page = 1) {
+      try {
+        const res = await fetch(`/dashboard/sessions?page=${page}`, {
+          headers: { 'x-api-key': API_KEY || '' }
+        });
+        if (!res.ok) throw new Error('Failed to load sessions');
+        const data = await res.json();
 
-                const tbody = document.getElementById('sessionsTableBody');
-                tbody.innerHTML = '';
+        const tbody = document.getElementById('sessionsTableBody');
+        tbody.innerHTML = '';
 
-                if (data.sessions.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-green-400">No sessions found.</td></tr>`;
-                } else {
-                    data.sessions.forEach(s => {
-                        tbody.innerHTML += `
+        if (data.sessions.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-green-400">No sessions found.</td></tr>`;
+        } else {
+          data.sessions.forEach(s => {
+            tbody.innerHTML += `
           <tr id="session-${s.session_uuid}">
             <td class="border border-gray-600 px-4 py-2">${s.tag}</td>
             <td class="border border-gray-600 px-4 py-2">${new Date(s.start_time).toLocaleString(undefined, { timeZone: 'Europe/Brussels' })}</td>
@@ -626,186 +635,186 @@
               </button>
             </td>
           </tr>`;
-                    });
-                }
+          });
+        }
 
-                // Update page state
-                currentPage = data.page;
-                renderPaginationControls(currentPage, data.total_pages);
+        // Update page state
+        currentPage = data.page;
+        renderPaginationControls(currentPage, data.total_pages);
 
-            } catch (err) {
-                console.error(err);
-                alert('Could not load sessions.');
+      } catch (err) {
+        console.error(err);
+        alert('Could not load sessions.');
+      }
+    }
+
+    async function deleteSession(sessionUuid) {
+      if (!confirm('Are you sure you want to delete this session?')) return;
+
+      try {
+        const response = await fetch(`/charger/session/${sessionUuid}`, {
+          method: 'DELETE',
+          headers: {
+            'x-api-key': API_KEY || '',
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          const err = await response.json();
+          alert('Error deleting session: ' + (err.detail || response.statusText));
+          return;
+        }
+
+        // Remove the row from the table
+        const row = document.getElementById(`session-${sessionUuid}`);
+        if (row) row.remove();
+      } catch (error) {
+        alert('Failed to delete session: ' + error.message);
+      }
+    }
+
+    yearSelect.addEventListener('change', () => loadData(yearSelect.value));
+    //document.getElementById('generateApiKey').addEventListener('click', generateApiKey);
+
+    // Initialize
+    loadData();
+    loadSessions(); // Load sessions on first load
+
+    function renderPaginationControls(current, totalPages) {
+      const container = document.getElementById('paginationControls');
+      container.innerHTML = ''; // Clear old buttons
+
+      //class="bg-green-500 hover:bg-green-600 disabled:opacity-50 px-4 py-2 rounded font-semibold shadow-md transition disabled:opacity-50">Previous</button>      
+      // Previous
+      const prev = document.createElement('button');
+      prev.textContent = 'Prev';
+      prev.disabled = current === 1;
+      prev.className = 'px-3 py-1 rounded-md bg-gray-700/80 hover:bg-gray-500/80 text-white text-sm transition border border-green-400 cursor-pointer';
+      prev.onclick = () => loadSessions(current - 1);
+      container.appendChild(prev);
+
+      // Page numbers (you can customize how many you want visible)
+      for (let i = 1; i <= totalPages; i++) {
+        if (
+          i === 1 ||
+          i === totalPages ||
+          Math.abs(i - current) <= 2 // Show nearby pages
+        ) {
+          const btn = document.createElement('button');
+          btn.textContent = i;
+          btn.disabled = i === current;
+          btn.className = `px-3 py-1 rounded ${i === current ? 'bg-green-400 text-white' : 'text-black bg-gray-200'}`;
+          btn.onclick = () => loadSessions(i);
+          container.appendChild(btn);
+        } else if (
+          i === current - 3 ||
+          i === current + 3
+        ) {
+          // Add ellipsis
+          const span = document.createElement('span');
+          span.textContent = '...';
+          span.className = 'px-2';
+          container.appendChild(span);
+        }
+      }
+
+      // Next
+      const next = document.createElement('button');
+      next.textContent = 'Next';
+      next.disabled = current === totalPages;
+      next.className = 'px-3 py-1 rounded-md bg-gray-700/80 hover:bg-gray-500/80 text-white text-sm transition border border-green-400 cursor-pointer';
+      next.onclick = () => loadSessions(current + 1);
+      container.appendChild(next);
+    }
+
+    function fetchStatuses() {
+      fetch("/dashboard/statuses")
+        .then(res => res.json())
+        .then(data => {
+          for (const [chargerId, info] of Object.entries(data)) {
+            document.getElementById(`status-${chargerId}`).textContent = info.status;
+            document.getElementById(`energy-${chargerId}`).textContent = info.energy.toFixed(2);
+            document.getElementById(`cost-${chargerId}`).textContent = info.cost.toFixed(2);
+            document.getElementById(`seconds-${chargerId}`).textContent = formatDuration(info.seconds);
+
+            // Get the card container
+            const card = document.querySelector(`[data-id='${chargerId}']`)?.parentElement?.parentElement;
+
+            if (card) {
+              if (info.status === "Charging") {
+                card.classList.add("glow");
+              } else {
+                card.classList.remove("glow");
+              }
             }
+          }
+        })
+        .catch(err => console.error("Failed to fetch statuses:", err));
+    }
+
+    setInterval(fetchStatuses, 60000);  // every 5 seconds
+    fetchStatuses();  // run immediately on load
+
+
+    // Charger map
+    const mapInstances = {};
+    const mapMarkers = {};
+
+    function toggleMap(el) {
+      const chargerId = el.dataset.id;
+      const lat = parseFloat(el.dataset.lat);
+      const lng = parseFloat(el.dataset.lng);
+      const mapContainer = document.getElementById(`map-${chargerId}`);
+      const editContainer = document.getElementById(`edit-${chargerId}`);
+
+      if (mapContainer.classList.contains('hidden')) {
+        mapContainer.classList.remove('hidden');
+        editContainer.classList.remove('hidden');
+
+        if (!mapInstances[chargerId]) {
+          const map = L.map(`map-${chargerId}`, {
+            fullscreenControl: true,
+          }).setView([lat, lng], 13);
+
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+          }).addTo(map);
+
+          const marker = L.marker([lat, lng]).addTo(map);
+          mapInstances[chargerId] = map;
+          mapMarkers[chargerId] = marker;
+
+          // Custom Center Button
+          const centerControl = L.control({ position: 'topright' });
+          centerControl.onAdd = function () {
+            const btn = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
+            btn.innerHTML = '🎯';
+            btn.title = 'Center on Marker';
+            btn.style.backgroundColor = 'white';
+            btn.style.width = '34px';
+            btn.style.height = '34px';
+            btn.style.cursor = 'pointer';
+
+            btn.onclick = function (e) {
+              e.preventDefault();
+              e.stopPropagation();
+              map.setView([lat, lng], 13);
+            };
+
+            return btn;
+          };
+
+          centerControl.addTo(map);
+        } else {
+          setTimeout(() => mapInstances[chargerId].invalidateSize(), 100);
         }
-
-        async function deleteSession(sessionUuid) {
-            if (!confirm('Are you sure you want to delete this session?')) return;
-
-            try {
-                const response = await fetch(`/charger/session/${sessionUuid}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'x-api-key': API_KEY || '',
-                        'Content-Type': 'application/json',
-                    },
-                });
-
-                if (!response.ok) {
-                    const err = await response.json();
-                    alert('Error deleting session: ' + (err.detail || response.statusText));
-                    return;
-                }
-
-                // Remove the row from the table
-                const row = document.getElementById(`session-${sessionUuid}`);
-                if (row) row.remove();
-            } catch (error) {
-                alert('Failed to delete session: ' + error.message);
-            }
-        }
-
-        yearSelect.addEventListener('change', () => loadData(yearSelect.value));
-        //document.getElementById('generateApiKey').addEventListener('click', generateApiKey);
-
-        // Initialize
-        loadData();
-        loadSessions(); // Load sessions on first load
-
-        function renderPaginationControls(current, totalPages) {
-            const container = document.getElementById('paginationControls');
-            container.innerHTML = ''; // Clear old buttons
-
-            //class="bg-green-500 hover:bg-green-600 disabled:opacity-50 px-4 py-2 rounded font-semibold shadow-md transition disabled:opacity-50">Previous</button>      
-            // Previous
-            const prev = document.createElement('button');
-            prev.textContent = 'Prev';
-            prev.disabled = current === 1;
-            prev.className = 'px-3 py-1 rounded-md bg-gray-700/80 hover:bg-gray-500/80 text-white text-sm transition border border-green-400 cursor-pointer';
-            prev.onclick = () => loadSessions(current - 1);
-            container.appendChild(prev);
-
-            // Page numbers (you can customize how many you want visible)
-            for (let i = 1; i <= totalPages; i++) {
-                if (
-                    i === 1 ||
-                    i === totalPages ||
-                    Math.abs(i - current) <= 2 // Show nearby pages
-                ) {
-                    const btn = document.createElement('button');
-                    btn.textContent = i;
-                    btn.disabled = i === current;
-                    btn.className = `px-3 py-1 rounded ${i === current ? 'bg-green-400 text-white' : 'text-black bg-gray-200'}`;
-                    btn.onclick = () => loadSessions(i);
-                    container.appendChild(btn);
-                } else if (
-                    i === current - 3 ||
-                    i === current + 3
-                ) {
-                    // Add ellipsis
-                    const span = document.createElement('span');
-                    span.textContent = '...';
-                    span.className = 'px-2';
-                    container.appendChild(span);
-                }
-            }
-
-            // Next
-            const next = document.createElement('button');
-            next.textContent = 'Next';
-            next.disabled = current === totalPages;
-            next.className = 'px-3 py-1 rounded-md bg-gray-700/80 hover:bg-gray-500/80 text-white text-sm transition border border-green-400 cursor-pointer';
-            next.onclick = () => loadSessions(current + 1);
-            container.appendChild(next);
-        }
-
-        function fetchStatuses() {
-            fetch("/dashboard/statuses")
-                .then(res => res.json())
-                .then(data => {
-                    for (const [chargerId, info] of Object.entries(data)) {
-                        document.getElementById(`status-${chargerId}`).textContent = info.status;
-                        document.getElementById(`energy-${chargerId}`).textContent = info.energy.toFixed(2);
-                        document.getElementById(`cost-${chargerId}`).textContent = info.cost.toFixed(2);
-                        document.getElementById(`seconds-${chargerId}`).textContent = formatDuration(info.seconds);
-
-                        // Get the card container
-                        const card = document.querySelector(`[data-id='${chargerId}']`)?.parentElement?.parentElement;
-
-                        if (card) {
-                            if (info.status === "Charging") {
-                                card.classList.add("glow");
-                            } else {
-                                card.classList.remove("glow");
-                            }
-                        }
-                    }
-                })
-                .catch(err => console.error("Failed to fetch statuses:", err));
-        }
-
-        setInterval(fetchStatuses, 60000);  // every 5 seconds
-        fetchStatuses();  // run immediately on load
-
-
-        // Charger map
-        const mapInstances = {};
-        const mapMarkers = {};
-
-        function toggleMap(el) {
-            const chargerId = el.dataset.id;
-            const lat = parseFloat(el.dataset.lat);
-            const lng = parseFloat(el.dataset.lng);
-            const mapContainer = document.getElementById(`map-${chargerId}`);
-            const editContainer = document.getElementById(`edit-${chargerId}`);
-
-            if (mapContainer.classList.contains('hidden')) {
-                mapContainer.classList.remove('hidden');
-                editContainer.classList.remove('hidden');
-
-                if (!mapInstances[chargerId]) {
-                    const map = L.map(`map-${chargerId}`, {
-                        fullscreenControl: true,
-                    }).setView([lat, lng], 13);
-
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '&copy; OpenStreetMap contributors',
-                    }).addTo(map);
-
-                    const marker = L.marker([lat, lng]).addTo(map);
-                    mapInstances[chargerId] = map;
-                    mapMarkers[chargerId] = marker;
-
-                    // Custom Center Button
-                    const centerControl = L.control({ position: 'topright' });
-                    centerControl.onAdd = function () {
-                        const btn = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
-                        btn.innerHTML = '🎯';
-                        btn.title = 'Center on Marker';
-                        btn.style.backgroundColor = 'white';
-                        btn.style.width = '34px';
-                        btn.style.height = '34px';
-                        btn.style.cursor = 'pointer';
-
-                        btn.onclick = function (e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            map.setView([lat, lng], 13);
-                        };
-
-                        return btn;
-                    };
-
-                    centerControl.addTo(map);
-                } else {
-                    setTimeout(() => mapInstances[chargerId].invalidateSize(), 100);
-                }
-            } else {
-                mapContainer.classList.add('hidden');
-                editContainer.classList.add('hidden');
-            }
-        }
-    </script>
+      } else {
+        mapContainer.classList.add('hidden');
+        editContainer.classList.add('hidden');
+      }
+    }
+  </script>
 
 </body>
 
