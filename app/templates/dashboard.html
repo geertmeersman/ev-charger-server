@@ -602,55 +602,8 @@
 
     function setCookie(name, value, days = 365) {
       const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
-      document.cookie = `${name}=${value}; expires=${expires}; path=/`;
+      document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
     }
-
-    async function loadSessions(page = 1, startDate = '', endDate = '') {
-      try {
-        const chargerParam = selected_charger_id !== "all" ? `&charger_id=${selected_charger_id}` : '';
-        const startParam = startDate ? `&start_date=${startDate}` : '';
-        const endParam = endDate ? `&end_date=${endDate}` : '';
-
-        const res = await fetch(`/dashboard/sessions?page=${page}${chargerParam}${startParam}${endParam}`, {
-          headers: { 'x-api-key': API_KEY || '' }
-        });
-
-        if (!res.ok) throw new Error('Failed to load sessions');
-        const data = await res.json();
-
-        const tbody = document.getElementById('sessionsTableBody');
-        tbody.innerHTML = '';
-
-        if (data.sessions.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-green-400">No sessions found.</td></tr>`;
-        } else {
-          data.sessions.forEach(s => {
-            tbody.innerHTML += `
-          <tr id="session-${s.session_uuid}">
-            <td class="border border-gray-600 px-4 py-2">${s.tag}</td>
-            <td class="border border-gray-600 px-4 py-2">${new Date(s.start_time).toLocaleString(undefined, { timeZone: 'Europe/Brussels' })}</td>
-            <td class="border border-gray-600 px-4 py-2">${new Date(s.end_time).toLocaleString(undefined, { timeZone: 'Europe/Brussels' })}</td>
-            <td class="border border-gray-600 px-4 py-2">${s.energy_charged_kwh.toFixed(2)}</td>
-            <td class="border border-gray-600 px-4 py-2">${s.cost.toFixed(2)}</td>
-            <td class="border border-gray-600 px-4 py-2">${formatDuration(s.duration_seconds)}</td>
-            <td class="border border-gray-600 px-2 py-2 text-center">
-              <button onclick="deleteSession('${s.session_uuid}')" title="Delete session" class="text-red-600 hover:text-red-900">
-                🗑
-              </button>
-            </td>
-          </tr>`;
-          });
-        }
-
-        currentPage = data.page;
-        renderPaginationControls(currentPage, data.total_pages);
-
-      } catch (err) {
-        console.error(err);
-        alert('Could not load sessions.');
-      }
-    }
-
 
     async function deleteSession(sessionUuid) {
       if (!confirm('Are you sure you want to delete this session?')) return;
