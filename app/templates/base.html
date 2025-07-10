@@ -30,9 +30,7 @@
             {% block content %}{% endblock %}
         </div>
     </div>
-    <footer class="mb-4 text-center text-sm text-white mb-2 mt-6">
-        &copy; {{ now().year }} Geert Meersman - {{ appInfo }} - All rights reserved.
-    </footer>
+    {% include "components/footer.html" with context %}
 
     <script>
         window.addEventListener('DOMContentLoaded', () => {

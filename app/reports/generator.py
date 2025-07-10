@@ -130,11 +130,18 @@ def build_report_header(styles, doc_width, username, start_date, end_date, secti
 
     # Add user and date info below
     elements.append(Paragraph(f"User: <b>{username}</b>", styles["SubHeading"]))
-    elements.append(
-        Paragraph(
-            f"Date Range: {start_date.date()} – {end_date.date()}", styles["Small"]
-        )
-    )
+
+    date_range_text = "Date Range: "
+    if start_date and end_date:
+        date_range_text += f"{start_date.date()} – {end_date.date()}"
+    elif start_date:
+        date_range_text += f"From {start_date.date()}"
+    elif end_date:
+        date_range_text += f"Until {end_date.date()}"
+    else:
+        date_range_text += "All sessions"
+
+    elements.append(Paragraph(date_range_text, styles["Small"]))
     elements.append(Spacer(1, 12))
 
     return elements
@@ -143,8 +150,8 @@ def build_report_header(styles, doc_width, username, start_date, end_date, secti
 def fetch_user_sessions(
     db: Session,
     username: str,
-    start_date: datetime,
-    end_date: datetime,
+    start_date: Optional[datetime] = None,
+    end_date: Optional[datetime] = None,
     tag: Optional[str] = None,
     charger_ids: Optional[List[str]] = None,
     group_by_tag: bool = False,
@@ -167,10 +174,14 @@ def fetch_user_sessions(
     charger_db_ids = [c.id for c in user_chargers]
 
     query = db.query(ChargingSession).filter(
-        ChargingSession.end_time >= start_date,
-        ChargingSession.start_time <= end_date,
         ChargingSession.charger_id.in_(charger_db_ids),
     )
+
+    # Add date filters only if dates are provided
+    if start_date is not None:
+        query = query.filter(ChargingSession.end_time >= start_date)
+    if end_date is not None:
+        query = query.filter(ChargingSession.start_time <= end_date)
 
     if tag:
         query = query.filter(ChargingSession.tag.ilike(f"%{tag}%"))
@@ -231,8 +242,18 @@ def render_session_section(
 
         # --- Create summary table data ---
         summary_data = [
-            ["Total Energy (kWh)", "Total Sessions", "Total Cost (€)", "Total Duration (hrs)"],
-            [f"{total_kwh:.2f}", str(total_sessions), f"{total_cost:.1f}", f"{total_duration:.1f}"],
+            [
+                "Total Energy (kWh)",
+                "Total Sessions",
+                "Total Cost (€)",
+                "Total Duration (hrs)",
+            ],
+            [
+                f"{total_kwh:.2f}",
+                str(total_sessions),
+                f"{total_cost:.1f}",
+                f"{total_duration:.1f}",
+            ],
         ]
 
         summary_table = Table(summary_data, colWidths=[doc.width / 5] * 4)
@@ -283,10 +304,28 @@ def render_session_section(
     # --- Session table ---
     if is_tag:
         data = [
-            ["Start Time", "End Time", "Duration", "Energy kWh", "Avg kW", "Cost", "Charger"]
+            [
+                "Start Time",
+                "End Time",
+                "Duration",
+                "Energy kWh",
+                "Avg kW",
+                "Cost",
+                "Charger",
+            ]
         ]
     else:
-        data = [["Start Time", "End Time", "Duration", "Energy kWh", "Avg kW", "Cost", "Tag"]]
+        data = [
+            [
+                "Start Time",
+                "End Time",
+                "Duration",
+                "Energy kWh",
+                "Avg kW",
+                "Cost",
+                "Tag",
+            ]
+        ]
 
     for s in sessions:
         duration = format_duration(s.duration_seconds)
@@ -407,7 +446,9 @@ class SVGImage(Flowable):
 
 
 def aggregate_monthly_data(grouped_sessions):
-    monthly_data = defaultdict(lambda: {"energy": 0, "duration": 0, "cost": 0, "sessions": 0})
+    monthly_data = defaultdict(
+        lambda: {"energy": 0, "duration": 0, "cost": 0, "sessions": 0}
+    )
 
     for sessions in grouped_sessions.values():
         for s in sessions:
