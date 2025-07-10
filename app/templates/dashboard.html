@@ -728,11 +728,9 @@
       const lat = parseFloat(el.dataset.lat);
       const lng = parseFloat(el.dataset.lng);
       const mapContainer = document.getElementById(`map-${chargerId}`);
-      const editContainer = document.getElementById(`edit-${chargerId}`);
 
       if (mapContainer.classList.contains('hidden')) {
         mapContainer.classList.remove('hidden');
-        editContainer.classList.remove('hidden');
 
         if (!mapInstances[chargerId]) {
           const map = L.map(`map-${chargerId}`, {
@@ -773,7 +771,6 @@
         }
       } else {
         mapContainer.classList.add('hidden');
-        editContainer.classList.add('hidden');
       }
     }
 
