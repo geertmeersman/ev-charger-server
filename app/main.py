@@ -244,7 +244,7 @@ class ChargingSessionOut(BaseModel):
     session_uuid: str
     charger_id: str
     cost: float
-    tag: str
+    tag: Optional[str] = None
     start_time: datetime
     end_time: datetime
     duration_seconds: int
@@ -272,7 +272,7 @@ class LastSessionOut(BaseModel):
     session_uuid: str
     charger_id: str
     cost: float
-    tag: str
+    tag: Optional[str] = None
     start_time: datetime
     end_time: datetime
     duration_seconds: int
