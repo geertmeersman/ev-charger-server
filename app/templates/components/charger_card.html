@@ -1,0 +1,128 @@
+<section id="charger-section"
+    class="bg-zinc-900/80 rounded-xl p-6 shadow-lg lg:col-span-2 transition-all duration-500 mb-2">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold flex items-center gap-2 text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M7 16V4a1 1 0 011-1h8a1 1 0 011 1v12m-2 4h-4m2-4v4" />
+            </svg>
+            Charger Information for {{ charger.charger_id }}
+        </h2>
+
+        <a href="/dashboard/charger/{{ charger.charger_id }}"
+            class="text-green-400 hover:text-white hover:bg-green-600 transition-colors duration-200 px-2 py-1 rounded text-sm inline-flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M14.7 6.3a1 1 0 00-1.4 0l-2.6 2.6a1 1 0 00-.3.7v1.4a1 1 0 001 1h1.4a1 1 0 00.7-.3l2.6-2.6a1 1 0 000-1.4l-1-1zm-4 7.4L5 19H3v-2l5.3-5.3" />
+            </svg>
+            Manage
+        </a>
+    </div>
+
+
+    <div class="flex flex-wrap gap-4">
+        <!-- Description -->
+        <div
+            class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow min-w-[180px]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-pink-400" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-6 8h4m-4 4h4" />
+            </svg>
+            <div>
+                <p class="text-xs font-semibold">Description</p>
+                <p class="text-sm truncate max-w-[120px]">{{ charger.description or "No description" }}</p>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div
+            class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow min-w-[120px]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2l4 -4" />
+            </svg>
+            <div>
+                <p class="text-xs font-semibold">Status</p>
+                <p id="status-{{ charger.charger_id }}" class="text-sm">–</p>
+            </div>
+        </div>
+
+        <!-- Energy -->
+        <div
+            class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow min-w-[140px]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <div>
+                <p class="text-xs font-semibold">Energy (kWh)</p>
+                <p id="energy-{{ charger.charger_id }}" class="text-sm">–</p>
+            </div>
+        </div>
+
+        <!-- Duration -->
+        <div
+            class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow min-w-[140px]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3" />
+                <circle cx="12" cy="12" r="10" stroke-width="2" />
+            </svg>
+            <div>
+                <p class="text-xs font-semibold">Duration</p>
+                <p id="seconds-{{ charger.charger_id }}" class="text-sm">– sec</p>
+            </div>
+        </div>
+
+        <!-- Cost -->
+        <div
+            class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow min-w-[140px]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 5H9a4 4 0 000 8h6m-6 0a4 4 0 000 8h8" />
+            </svg>
+            <div>
+                <p class="text-xs font-semibold">Cost (€)</p>
+                <p id="cost-{{ charger.charger_id }}" class="text-sm">–</p>
+            </div>
+        </div>
+
+        {% if charger.latitude is not none and charger.longitude is not none %}
+        <!-- Location -->
+        <div class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow min-w-[160px] cursor-pointer border border-transparent hover:border-green-400 transition-colors duration-200"
+            data-lat="{{ charger.latitude }}" data-lng="{{ charger.longitude }}" data-id="{{ charger.charger_id }}"
+            onclick="toggleMap(this)">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-cyan-400" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 11c1.104 0 2-.896 2-2s-.896-2-2-2s-2 .896-2 2s.896 2 2 2zm0 0c-2.21 0-4 1.79-4 4c0 2.5 4 7 4 7s4-4.5 4-7c0-2.21-1.79-4-4-4z" />
+            </svg>
+            <div>
+                <p class="text-xs font-semibold">Location</p>
+                <p class="text-sm truncate max-w-[100px]">
+                    {{ "%.4f" | format(charger.latitude) }}, {{ "%.4f" | format(charger.longitude) }}
+                </p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if charger.latitude is not none and charger.longitude is not none %}
+    <div id="map-{{ charger.charger_id }}" class="w-full hidden mt-6">
+        <div class="bg-zinc-800 p-4 rounded-xl shadow-lg">
+            <h3 class="text-sm font-semibold text-gray-200 mb-2 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-cyan-400" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 11c1.104 0 2-.896 2-2s-.896-2-2-2s-2 .896-2 2s.896 2 2 2zm0 0c-2.21 0-4 1.79-4 4c0 2.5 4 7 4 7s4-4.5 4-7c0-2.21-1.79-4-4-4z" />
+                </svg>
+                Map Location
+            </h3>
+            <div class="map rounded-lg" style="height: 300px;"></div>
+        </div>
+    </div>
+    {% endif %}
+</section>

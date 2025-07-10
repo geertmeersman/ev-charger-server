@@ -12,6 +12,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet.fullscreen@1.6.0/Control.FullScreen.css" />
   <script src="https://unpkg.com/leaflet.fullscreen@1.6.0/Control.FullScreen.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" integrity="sha384-[hash]" crossorigin="anonymous"></script>
 </head>
 
 <body class="ev-background bg-black min-h-screen text-white font-sans">
@@ -62,146 +63,57 @@
         {% endif %}
       </form>
 
-      <div class="flex items-center space-x-2">
-        <span class="text-white font-semibold">{{ user.username }}</span>
-        <a href="/dashboard/logout" class="text-sm text-gray-300 hover:text-red-400">Logout</a>
+      <!-- Profile dropdown (click to toggle) -->
+      <div x-data="{ open: false }" class="relative">
+        <button @click="open = !open"
+          class="flex items-center gap-2 text-white font-semibold focus:outline-none hover:text-green-400 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M5.121 17.804A9 9 0 1119.78 3.221a9 9 0 01-14.658 14.583zM15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          {{ user.username }}
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        <div x-show="open" @click.outside="open = false" x-transition
+          class="absolute right-0 z-50 mt-2 w-40 rounded-md shadow-lg bg-zinc-800 border border-gray-700">
+          <a href="/dashboard/profile"
+            class="block px-4 py-2 text-sm text-gray-300 hover:bg-zinc-700 hover:text-white">👤 Profile</a>
+          <a href="/dashboard/logout" class="block px-4 py-2 text-sm text-red-400 hover:bg-zinc-700 hover:text-white">🚪
+            Logout</a>
+        </div>
       </div>
+
     </div>
   </header>
 
 
   <main class="w-full max-w-7xl p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-screen-xl mx-auto">
 
-    {% if chargers|length > 0 %}
-    <!-- Full-width Charger Info section -->
-    <section id="charger-section"
-      class="bg-zinc-900/80 rounded-xl p-6 shadow-lg lg:col-span-2 transition-all duration-500">
-      {% set charger = chargers | selectattr('id', 'equalto', selected_charger | int) | first %}
-      <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-white">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24"
-          stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M7 16V4a1 1 0 011-1h8a1 1 0 011 1v12m-2 4h-4m2-4v4" />
-        </svg>
-        Charger Information for {{ charger.charger_id }}
-      </h2>
-
-      <div class="flex flex-wrap gap-4">
-        <!-- Description -->
-        <div
-          class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow focus:outline-none min-w-[180px]">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-pink-400" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-6 8h4m-4 4h4" />
-          </svg>
-          <div>
-            <p class="text-xs font-semibold">Description</p>
-            <p class="text-sm truncate max-w-[120px]">{{ charger.description or "No description" }}</p>
-          </div>
-        </div>
-
-        <!-- Status -->
-        <div
-          class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow focus:outline-none min-w-[120px]">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2l4 -4" />
-          </svg>
-          <div>
-            <p class="text-xs font-semibold">Status</p>
-            <p id="status-{{ charger.charger_id }}" class="text-sm">–</p>
-          </div>
-        </div>
-
-        <!-- Energy -->
-        <div
-          class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow focus:outline-none min-w-[140px]">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-          <div>
-            <p class="text-xs font-semibold">Energy (kWh)</p>
-            <p id="energy-{{ charger.charger_id }}" class="text-sm">–</p>
-          </div>
-        </div>
-
-        <!-- Duration -->
-        <div
-          class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow focus:outline-none min-w-[140px]">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3" />
-            <circle cx="12" cy="12" r="10" stroke-width="2" />
-          </svg>
-          <div>
-            <p class="text-xs font-semibold">Duration</p>
-            <p id="seconds-{{ charger.charger_id }}" class="text-sm">– sec</p>
-          </div>
-        </div>
-
-        <!-- Cost -->
-        <div
-          class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow focus:outline-none min-w-[140px]">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M17 5H9a4 4 0 000 8h6m-6 0a4 4 0 000 8h8" />
-          </svg>
-          <div>
-            <p class="text-xs font-semibold">Cost (€)</p>
-            <p id="cost-{{ charger.charger_id }}" class="text-sm">–</p>
-          </div>
-        </div>
-
-        {% if charger.latitude is not none and charger.longitude is not none %}
-        <!-- Location -->
-        <div
-          class="flex items-center gap-2 rounded-md bg-zinc-800 px-4 py-1 text-gray-200 font-semibold shadow focus:outline-none min-w-[160px] cursor-pointer border border-transparent hover:border-green-400 transition-colors duration-200"
-          data-lat="{{ charger.latitude }}" data-lng="{{ charger.longitude }}" data-id="{{ charger.charger_id }}"
-          onclick="toggleMap(this)">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-cyan-400" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 11c1.104 0 2-.896 2-2s-.896-2-2-2s-2 .896-2 2s.896 2 2 2zm0 0c-2.21 0-4 1.79-4 4c0 2.5 4 7 4 7s4-4.5 4-7c0-2.21-1.79-4-4-4z" />
-          </svg>
-          <div>
-            <p class="text-xs font-semibold">Location</p>
-            <p class="text-sm truncate max-w-[100px]">
-              {{ "%.4f" | format(charger.latitude) }}, {{ "%.4f" | format(charger.longitude) }}
-            </p>
-          </div>
-        </div>
-        {% endif %}
-
-      </div>
-      <div id="map-{{ charger.charger_id }}" class="w-full hidden mt-6">
-        <div class="bg-zinc-800 p-4 rounded-xl shadow-lg">
-          <h3 class="text-sm font-semibold text-gray-200 mb-2 flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-cyan-400" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 11c1.104 0 2-.896 2-2s-.896-2-2-2s-2 .896-2 2s.896 2 2 2zm0 0c-2.21 0-4 1.79-4 4c0 2.5 4 7 4 7s4-4.5 4-7c0-2.21-1.79-4-4-4z" />
-            </svg>
-            Map Location
-          </h3>
-          <div class="map rounded-lg" style="height: 300px;"></div>
-        </div>
-      </div>
-
-      <div class="flex gap-2 mt-4 hidden" id="edit-{{ charger.charger_id }}">
-        <button class="bg-pink-600 hover:bg-pink-700 text-white px-3 py-1 rounded shadow text-sm"
-          onclick="openEditModal('{{ charger.charger_id }}', '{{ charger.description }}', '{{ charger.latitude }}', '{{ charger.longitude }}');">
-          ✏️ Edit
-        </button>
-        <button class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded shadow text-sm"
-          onclick="openDeleteModal('{{ charger.charger_id }}');">
-          🗑️ Delete
-        </button>
-      </div>
-      </div>
+    {% if chargers|length == 0 %}
+    <!-- No chargers -->
+    <section class="bg-zinc-900/80 rounded-xl p-6 shadow-lg text-white text-center">
+      <h2 class="text-xl font-bold mb-2">No chargers found</h2>
+      <p class="mb-4">You haven't registered any chargers yet.</p>
+      <a href="/dashboard/create-charger" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded shadow text-white">
+        ➕ Register a Charger
+      </a>
     </section>
+
+    {% elif selected_charger != "all" %}
+    {% set charger = chargers | selectattr('id', 'equalto', selected_charger | int) | first %}
+    {% include "components/charger_card.html" with context %}
+
+    {% else %}
+    {% for charger in chargers %}
+    {% include "components/charger_card.html" with context %}
+    {% endfor %}
     {% endif %}
+
 
     <!-- Section 1: Daily Charging by Month -->
     <section class="bg-zinc-900/80 rounded-xl p-6 shadow-lg">
@@ -279,6 +191,7 @@
               <th class="border border-gray-600 px-4 py-2 font-semibold">Month</th>
               <th class="border border-gray-600 px-4 py-2 font-semibold">Sessions</th>
               <th class="border border-gray-600 px-4 py-2 font-semibold">Total kWh</th>
+              <th class="border border-gray-600 px-4 py-2 font-semibold">Total €</th>
             </tr>
           </thead>
           <tbody class="bg-black/70 text-gray-300"></tbody>
@@ -331,7 +244,8 @@
               <th class="border border-gray-600 px-4 py-2 font-semibold">Tag</th>
               <th class="border border-gray-600 px-4 py-2 font-semibold">Start Time</th>
               <th class="border border-gray-600 px-4 py-2 font-semibold">End Time</th>
-              <th class="border border-gray-600 px-4 py-2 font-semibold">kWh Charged</th>
+              <th class="border border-gray-600 px-4 py-2 font-semibold">kWh</th>
+              <th class="border border-gray-600 px-4 py-2 font-semibold">€</th>
               <th class="border border-gray-600 px-4 py-2 font-semibold">Duration</th>
               <th class="border border-gray-600 px-2 py-2 font-semibold">&nbsp;</th>
             </tr>
@@ -354,6 +268,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     let API_KEY = "{{ user.api_key }}";
+    const selected_charger_id = {{ selected_charger | tojson }};
 
     const dailyCtx = document.getElementById('dailyChart').getContext('2d');
     const monthSelect = document.getElementById('monthSelect');
@@ -365,7 +280,10 @@
     let currentMonth = null;
 
     async function fetchDailySessions(month) {
-      const res = await fetch(`/dashboard/daily_sessions?month=${month}`);
+      const chargerParam = selected_charger_id !== "all" ? `&charger_id=${selected_charger_id}` : "";
+      const url = `/dashboard/daily_sessions?month=${month}${chargerParam}`;
+
+      const res = await fetch(url);
       if (!res.ok) {
         console.error("Failed to fetch daily data");
         return null;
@@ -496,8 +414,9 @@
     let chart;
 
     async function fetchMonthlySessions(year) {
-      let url = '/dashboard/monthly_sessions';
-      if (year) url += '?year=' + year;
+      let chargerParam = selected_charger_id !== "all" ? `charger_id=${selected_charger_id}` : "";
+      let url = `/dashboard/monthly_sessions?${chargerParam}`;
+      if (year) url += '&year=' + year;
       const response = await fetch(url, {
         headers: { 'x-api-key': API_KEY || '' }
       });
@@ -512,7 +431,7 @@
       const sessions = data.monthly_data.map(d => d.sessions);
       const kwh = data.monthly_data.map(d => d.kwh);
       document.getElementById('yearTotal').textContent =
-        `Total ${data.year}: ${data.year_summary.total_energy_kwh} kWh in ${data.year_summary.total_sessions} sessions`;
+        `Total ${data.year}: ${data.year_summary.total_energy_kwh} kWh in ${data.year_summary.total_sessions} sessions for € ${data.year_summary.total_cost}`;
 
       const config = {
         type: 'line',
@@ -583,6 +502,7 @@
             <td class="border border-gray-600 px-4 py-2">${monthName} ${year}</td>
             <td class="border border-gray-600 px-4 py-2">${data.sessions}</td>
             <td class="border border-gray-600 px-4 py-2">${data.kwh.toFixed(2)}</td>
+            <td class="border border-gray-600 px-4 py-2">${data.cost.toFixed(2)}</td>
           </tr>
         `;
       });
@@ -609,7 +529,8 @@
 
     async function loadSessions(page = 1) {
       try {
-        const res = await fetch(`/dashboard/sessions?page=${page}`, {
+        let chargerParam = selected_charger_id !== "all" ? `&charger_id=${selected_charger_id}` : "";
+        const res = await fetch(`/dashboard/sessions?page=${page}${chargerParam}`, {
           headers: { 'x-api-key': API_KEY || '' }
         });
         if (!res.ok) throw new Error('Failed to load sessions');
@@ -619,7 +540,7 @@
         tbody.innerHTML = '';
 
         if (data.sessions.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-green-400">No sessions found.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-green-400">No sessions found.</td></tr>`;
         } else {
           data.sessions.forEach(s => {
             tbody.innerHTML += `
@@ -628,6 +549,7 @@
             <td class="border border-gray-600 px-4 py-2">${new Date(s.start_time).toLocaleString(undefined, { timeZone: 'Europe/Brussels' })}</td>
             <td class="border border-gray-600 px-4 py-2">${new Date(s.end_time).toLocaleString(undefined, { timeZone: 'Europe/Brussels' })}</td>
             <td class="border border-gray-600 px-4 py-2">${s.energy_charged_kwh.toFixed(2)}</td>
+            <td class="border border-gray-600 px-4 py-2">${s.cost.toFixed(2)}</td>
             <td class="border border-gray-600 px-4 py-2">${formatDuration(s.duration_seconds)}</td>
             <td class="border border-gray-600 px-2 py-2 text-center">
               <button onclick="deleteSession('${s.session_uuid}')" title="Delete session" class="text-red-600 hover:text-red-900">
@@ -733,14 +655,18 @@
         .then(res => res.json())
         .then(data => {
           for (const [chargerId, info] of Object.entries(data)) {
-            document.getElementById(`status-${chargerId}`).textContent = info.status;
-            document.getElementById(`energy-${chargerId}`).textContent = info.energy.toFixed(2);
-            document.getElementById(`cost-${chargerId}`).textContent = info.cost.toFixed(2);
-            document.getElementById(`seconds-${chargerId}`).textContent = formatDuration(info.seconds);
+            const statusEl = document.getElementById(`status-${chargerId}`);
+            const energyEl = document.getElementById(`energy-${chargerId}`);
+            const costEl = document.getElementById(`cost-${chargerId}`);
+            const secondsEl = document.getElementById(`seconds-${chargerId}`);
+
+            if (statusEl) statusEl.textContent = info.status;
+            if (energyEl) energyEl.textContent = info.energy.toFixed(2);
+            if (costEl) costEl.textContent = info.cost.toFixed(2);
+            if (secondsEl) secondsEl.textContent = formatDuration(info.seconds);
 
             // Get the card container
             const card = document.querySelector(`[data-id='${chargerId}']`)?.parentElement?.parentElement;
-
             if (card) {
               if (info.status === "Charging") {
                 card.classList.add("glow");

@@ -39,7 +39,7 @@ class Charger(Base):
     id = Column(Integer, primary_key=True, index=True)
     charger_id = Column(String, nullable=False)
     description = Column(String, nullable=True)
-    cost_kwh = Column(Float, nullable=False)
+    cost_kwh = Column(Float, nullable=False, default=0.0)
     registered_at = Column(DateTime, default=datetime.utcnow)
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
@@ -65,7 +65,7 @@ class ChargingStatus(Base):
     id = Column(Integer, primary_key=True, index=True)
     charger_id = Column(Integer, ForeignKey("chargers.id"), nullable=False)
     timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
-    cost = Column(Float, nullable=False)
+    cost = Column(Float, nullable=False, default=0.0)
 
     seconds = Column(Integer, nullable=False)
     energy = Column(Float, nullable=False)
@@ -102,7 +102,7 @@ class ChargingSession(Base):
     end_time = Column(DateTime, nullable=False)
     duration_seconds = Column(Integer, nullable=False)
     energy_charged_kwh = Column(Float, nullable=False)
-    cost =  Column(Float, nullable=False)
+    cost = Column(Float, nullable=False, default=0.0)
     tag = Column(String(30), nullable=True)
 
     charger = relationship("Charger", back_populates="sessions")

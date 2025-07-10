@@ -5,11 +5,10 @@ import re
 import secrets
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
-from io import TextIOWrapper
+from io import BytesIO, TextIOWrapper
 from math import ceil
 from typing import List, Optional
-from app.reports.generator import fetch_user_sessions, generate_pdf_report
-from io import BytesIO
+
 import bcrypt
 import chardet
 from dateutil.relativedelta import relativedelta
@@ -41,10 +40,11 @@ from itsdangerous import BadSignature, URLSafeSerializer
 from passlib.context import CryptContext
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, validator
 from sqlalchemy import extract, func, inspect
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 
 from app import database, models
 from app.database import engine
+from app.reports.generator import fetch_user_sessions, generate_pdf_report
 
 from .config import APP_INFO, APP_NAME, BASE_URL, SECRET_KEY, VERSION
 from .utils.email import send_email
@@ -176,14 +176,18 @@ class UserRegisterIn(BaseModel):
 class ChargerRegisterIn(BaseModel):
     charger_id: str = Field(..., description="Unique identifier for the charger")
     description: str = Field(..., description="Human-readable charger description")
-    cost_kwh: float = Field(..., ge=0.0, description="Cost per kWh in your currency")
+    cost_kwh: Optional[float] = Field(
+        None, ge=0.0, description="Cost per kWh in your currency"
+    )
     latitude: Optional[float] = None
     longitude: Optional[float] = None
 
 
 class ChargerPutIn(BaseModel):
     description: str = Field(..., description="Human-readable charger description")
-    cost_kwh: float = Field(..., ge=0.0, description="Cost per kWh in your currency")
+    cost_kwh: Optional[float] = Field(
+        None, ge=0.0, description="Cost per kWh in your currency"
+    )
     latitude: Optional[float] = None
     longitude: Optional[float] = None
 
@@ -542,7 +546,7 @@ def register_charger(
     new = models.Charger(
         charger_id=info.charger_id,
         description=info.description,
-        cost_kwh=info.cost_kwh,
+        cost_kwh=info.cost_kwh if info.cost_kwh is not None else 0.0,
         registered_at=datetime.utcnow(),
         latitude=info.latitude,
         longitude=info.longitude,
@@ -571,7 +575,7 @@ def update_charger(
     charger.description = data.description
     charger.latitude = data.latitude
     charger.longitude = data.longitude
-    charger.cost_kwh = data.cost_kwh
+    charger.cost_kwh = data.cost_kwh if data.cost_kwh is not None else 0.0
     db.commit()
     return {"status": "updated"}
 
@@ -1260,28 +1264,54 @@ def dashboard(
 @app.get("/dashboard/sessions", response_model=dict, tags=["UI"])
 def dashboard_charger_sessions(
     page: int = Query(1, ge=1),
+    charger_id: Optional[int] = Query(None, description="Filter by charger ID"),
+    start_date: Optional[str] = Query(
+        None, description="Start date in YYYY-MM-DD format"
+    ),
+    end_date: Optional[str] = Query(None, description="End date in YYYY-MM-DD format"),
     user: models.User = Depends(get_user_by_api_key),
     db: Session = Depends(get_db),
 ):
     per_page = 10
-    # Get all chargers owned by the user
+
+    # Get user's chargers
     chargers = db.query(models.Charger).filter(models.Charger.owner_id == user.id).all()
     charger_ids = [c.id for c in chargers]
     charger_map = {c.id: c.charger_id for c in chargers}
 
-    # Query sessions for these chargers with pagination
-    query = (
-        db.query(models.ChargingSession)
-        .filter(models.ChargingSession.charger_id.in_(charger_ids))
-        .order_by(models.ChargingSession.end_time.desc())
+    # Validate charger_id if provided
+    if charger_id is not None:
+        if charger_id not in charger_ids:
+            raise HTTPException(
+                status_code=403, detail="Charger does not belong to the user."
+            )
+        charger_ids = [charger_id]
+
+    # Parse dates
+    try:
+        start_dt = datetime.strptime(start_date, "%Y-%m-%d") if start_date else None
+        end_dt = datetime.strptime(end_date, "%Y-%m-%d") if end_date else None
+    except ValueError:
+        raise HTTPException(
+            status_code=400, detail="Invalid date format. Use YYYY-MM-DD."
+        )
+
+    # Build query
+    query = db.query(models.ChargingSession).filter(
+        models.ChargingSession.charger_id.in_(charger_ids)
     )
+
+    if start_dt:
+        query = query.filter(models.ChargingSession.start_time >= start_dt)
+    if end_dt:
+        query = query.filter(models.ChargingSession.start_time <= end_dt)
+
+    query = query.order_by(models.ChargingSession.end_time.desc())
+
     total = query.count()
     sessions = query.offset((page - 1) * per_page).limit(per_page).all()
-
-    # Calculate total pages
     total_pages = ceil(total / per_page)
 
-    # Build response list
     session_list = [
         ChargingSessionOut(
             session_uuid=s.session_uuid,
@@ -1308,74 +1338,114 @@ def dashboard_charger_sessions(
 @app.get("/dashboard/monthly_sessions", tags=["UI"])
 def dashboard_monthly_sessions(
     year: Optional[int] = Query(None, ge=2000, le=2100),
+    charger_id: Optional[int] = Query(None, description="Filter by charger ID"),
     db: Session = Depends(get_db),
     user=Depends(get_user_from_cookie),
 ):
     if year is None:
         year = datetime.utcnow().year
 
-    # --- Get distinct years from ChargingSession table ---
-    year_rows = (
-        db.query(extract("year", models.ChargingSession.start_time).label("year"))
-        .distinct()
-        .all()
-    )
+    charger_alias = aliased(models.Charger)
 
+    # Get available years filtered by user and optional charger
+    all_years_query = (
+        db.query(extract("year", models.ChargingSession.start_time).label("year"))
+        .join(charger_alias, models.ChargingSession.charger_id == charger_alias.id)
+        .filter(charger_alias.owner_id == user.id)
+    )
+    if charger_id is not None:
+        all_years_query = all_years_query.filter(
+            models.ChargingSession.charger_id == charger_id
+        )
+
+    year_rows = all_years_query.distinct().all()
     available_years = sorted(int(row.year) for row in year_rows if row.year is not None)
 
-    # Initialize totals
     total_sessions_year = 0
     total_energy_year = 0.0
-    # Monthly data for selected year
+    total_cost_year = 0.0
+
     monthly_data = []
     for month in range(1, 13):
-        month_sessions = (
-            db.query(models.ChargingSession)
+        month_data_query = (
+            db.query(
+                func.count(models.ChargingSession.id).label("session_count"),
+                func.sum(models.ChargingSession.energy_charged_kwh).label("total_kwh"),
+                func.sum(models.ChargingSession.cost).label("total_cost"),
+            )
+            .join(charger_alias, models.ChargingSession.charger_id == charger_alias.id)
             .filter(
                 extract("year", models.ChargingSession.start_time) == year,
                 extract("month", models.ChargingSession.start_time) == month,
+                charger_alias.owner_id == user.id,
             )
-            .all()
+        )
+        if charger_id is not None:
+            month_data_query = month_data_query.filter(
+                models.ChargingSession.charger_id == charger_id
+            )
+
+        month_data = month_data_query.one()
+
+        session_count = month_data.session_count or 0
+        total_kwh = month_data.total_kwh or 0.0
+        total_cost = month_data.total_cost or 0.0
+
+        monthly_data.append(
+            {
+                "sessions": session_count,
+                "kwh": round(total_kwh, 2),
+                "cost": round(total_cost, 2),
+            }
         )
 
-        session_count = len(month_sessions)
-        total_energy = sum(s.energy_charged_kwh for s in month_sessions)
-
-        monthly_data.append({"sessions": session_count, "kwh": round(total_energy, 2)})
-
         total_sessions_year += session_count
-        total_energy_year += total_energy
+        total_energy_year += total_kwh
+        total_cost_year += total_cost
 
     year_summary = {
         "total_sessions": total_sessions_year,
-        "total_energy_kwh": round(total_energy_year, 0),
+        "total_energy_kwh": round(total_energy_year, 2),
+        "total_cost": round(total_cost_year, 2),
     }
 
-    # Last 12 months summary
-    today = datetime.utcnow().replace(day=1)  # first day of current month
-    last_12_months_summary = defaultdict(lambda: {"sessions": 0, "kwh": 0})
+    today = datetime.utcnow().replace(day=1)
+    last_12_months_summary = defaultdict(
+        lambda: {"sessions": 0, "kwh": 0.0, "cost": 0.0}
+    )
 
     for i in range(12):
         month_start = today - relativedelta(months=i)
         y = month_start.year
         m = month_start.month
 
-        month_sessions = (
-            db.query(models.ChargingSession)
+        last_month_query = (
+            db.query(
+                func.count(models.ChargingSession.id).label("session_count"),
+                func.sum(models.ChargingSession.energy_charged_kwh).label("total_kwh"),
+                func.sum(models.ChargingSession.cost).label("total_cost"),
+            )
+            .join(charger_alias, models.ChargingSession.charger_id == charger_alias.id)
             .filter(
                 extract("year", models.ChargingSession.start_time) == y,
                 extract("month", models.ChargingSession.start_time) == m,
+                charger_alias.owner_id == user.id,
             )
-            .all()
         )
+        if charger_id is not None:
+            last_month_query = last_month_query.filter(
+                models.ChargingSession.charger_id == charger_id
+            )
+
+        last_month_data = last_month_query.one()
 
         key = f"{y}-{m:02d}"
-        last_12_months_summary[key]["sessions"] = len(month_sessions)
-        last_12_months_summary[key]["kwh"] = round(
-            sum(s.energy_charged_kwh for s in month_sessions), 2
+        last_12_months_summary[key]["sessions"] = last_month_data.session_count or 0
+        last_12_months_summary[key]["kwh"] = round(last_month_data.total_kwh or 0.0, 2)
+        last_12_months_summary[key]["cost"] = round(
+            last_month_data.total_cost or 0.0, 2
         )
 
-    # Convert defaultdict to dict and ensure sorted keys (oldest first)
     last_12_months_summary = dict(sorted(last_12_months_summary.items()))
 
     return {
@@ -1390,10 +1460,11 @@ def dashboard_monthly_sessions(
 @app.get("/dashboard/daily_sessions", tags=["UI"])
 def dashboard_daily_sessions(
     month: Optional[str] = Query(None, regex=r"^\d{4}-\d{2}$"),
+    charger_id: Optional[int] = Query(None, description="Filter by charger ID"),
     db: Session = Depends(get_db),
     user=Depends(get_user_from_cookie),
 ):
-    # Default to current month
+    # Parse month or default to current month
     if month is None:
         today = datetime.utcnow()
         year = today.year
@@ -1404,37 +1475,54 @@ def dashboard_daily_sessions(
         except ValueError:
             return {"error": "Invalid month format. Use YYYY-MM"}
 
-    # All available months
-    all_months = (
+    # Alias Charger for join clarity
+    charger_alias = aliased(models.Charger)
+
+    # Query distinct available months for sessions belonging to user's chargers
+    all_months_query = (
         db.query(
             extract("year", models.ChargingSession.start_time).label("y"),
             extract("month", models.ChargingSession.start_time).label("m"),
         )
-        .distinct()
-        .order_by("y", "m")
-        .all()
+        .join(charger_alias, models.ChargingSession.charger_id == charger_alias.id)
+        .filter(charger_alias.owner_id == user.id)
     )
+
+    if charger_id is not None:
+        all_months_query = all_months_query.filter(
+            models.ChargingSession.charger_id == charger_id
+        )
+
+    all_months = all_months_query.distinct().order_by("y", "m").all()
     available_months = [f"{int(y):04d}-{int(m):02d}" for y, m in all_months if y and m]
 
-    # Get daily energy data for the month
-    sessions = (
+    # Base query to get total kWh per day for the requested month
+    query = (
         db.query(
             func.date(models.ChargingSession.start_time).label("day"),
             func.sum(models.ChargingSession.energy_charged_kwh).label("total_kwh"),
         )
+        .join(charger_alias, models.ChargingSession.charger_id == charger_alias.id)
         .filter(
             extract("year", models.ChargingSession.start_time) == year,
             extract("month", models.ChargingSession.start_time) == month_num,
+            charger_alias.owner_id == user.id,
         )
-        .group_by(func.date(models.ChargingSession.start_time))
+    )
+
+    if charger_id is not None:
+        query = query.filter(models.ChargingSession.charger_id == charger_id)
+
+    sessions = (
+        query.group_by(func.date(models.ChargingSession.start_time))
         .order_by(func.date(models.ChargingSession.start_time))
         .all()
     )
 
-    # Map results for quick lookup
+    # Map day -> total kWh
     energy_by_day = {str(row.day): float(row.total_kwh or 0) for row in sessions}
 
-    # Fill all days of the month
+    # Calculate days in month and fill missing days with 0
     first_day = datetime(year, month_num, 1)
     next_month = first_day + relativedelta(months=1)
     days_in_month = (next_month - relativedelta(days=1)).day
@@ -1703,9 +1791,7 @@ def confirm_email_change(
     )
 
 
-@app.get(
-    "/dashboard/import-nexxtmove-csv", response_class=HTMLResponse, tags=["Dashboard"]
-)
+@app.get("/dashboard/import-nexxtmove-csv", response_class=HTMLResponse, tags=["UI"])
 def show_csv_import_form(
     request: Request,
     db: Session = Depends(get_db),
@@ -1766,6 +1852,37 @@ def show_create_charger_form(
             "appName": APP_NAME,
             "appInfo": APP_INFO,
             "now": datetime.utcnow,
+        },
+    )
+
+
+@app.get("/dashboard/charger/{charger_id}", response_class=HTMLResponse, tags=["UI"])
+def show_manage_charger_form(
+    charger_id: str,
+    request: Request,
+    user: models.User = Depends(get_user_from_cookie),
+    db: Session = Depends(get_db),
+):
+    charger = (
+        db.query(models.Charger)
+        .filter_by(charger_id=charger_id, owner_id=user.id)
+        .first()
+    )
+    if not charger:
+        raise HTTPException(
+            status_code=404, detail="Charger not found or not owned by user"
+        )
+
+    return templates.TemplateResponse(
+        "manage_charger.html",
+        {
+            "request": request,
+            "user": user,
+            "apiKey": user.api_key,
+            "appName": APP_NAME,
+            "appInfo": APP_INFO,
+            "now": datetime.utcnow,
+            "charger": charger,  # Pass charger model directly to template
         },
     )
 
