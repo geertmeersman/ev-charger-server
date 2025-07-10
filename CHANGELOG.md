@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.4.0](https://github.com/geertmeersman/ev-charger-server/tree/v0.4.0) (2025-07-10)
+
+[Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v0.3.0...v0.4.0)
+
+**Merged pull requests:**
+
+- feat: session filter & download UI functionality [\#6](https://github.com/geertmeersman/ev-charger-server/pull/6) ([geertmeersman](https://github.com/geertmeersman))
+
 ## [v0.3.0](https://github.com/geertmeersman/ev-charger-server/tree/v0.3.0) (2025-07-10)
 
 [Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v0.2.0...v0.3.0)
