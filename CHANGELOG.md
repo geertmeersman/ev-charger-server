@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.2.0](https://github.com/geertmeersman/ev-charger-server/tree/v0.2.0) (2025-07-10)
+
+[Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v0.1.0...v0.2.0)
+
+**Merged pull requests:**
+
+- feat: create charger in dashboard [\#3](https://github.com/geertmeersman/ev-charger-server/pull/3) ([geertmeersman](https://github.com/geertmeersman))
+- docs: security note on rev proxy [\#2](https://github.com/geertmeersman/ev-charger-server/pull/2) ([geertmeersman](https://github.com/geertmeersman))
+- docs: license added [\#1](https://github.com/geertmeersman/ev-charger-server/pull/1) ([geertmeersman](https://github.com/geertmeersman))
+
 ## [v0.1.0](https://github.com/geertmeersman/ev-charger-server/tree/v0.1.0) (2025-07-09)
 
 [Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/98585dc6966ba65b62574472eac5f8d8ac811270...v0.1.0)
