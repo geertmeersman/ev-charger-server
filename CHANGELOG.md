@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.4.1](https://github.com/geertmeersman/ev-charger-server/tree/v0.4.1) (2025-07-10)
+
+[Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v0.4.0...v0.4.1)
+
+**Merged pull requests:**
+
+- fix: dashboard fixes [\#7](https://github.com/geertmeersman/ev-charger-server/pull/7) ([geertmeersman](https://github.com/geertmeersman))
+
 ## [v0.4.0](https://github.com/geertmeersman/ev-charger-server/tree/v0.4.0) (2025-07-10)
 
 [Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v0.3.0...v0.4.0)
