@@ -1,5 +1,14 @@
 # Changelog
 
+## [v0.3.0](https://github.com/geertmeersman/ev-charger-server/tree/v0.3.0) (2025-07-10)
+
+[Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v0.2.0...v0.3.0)
+
+**Merged pull requests:**
+
+- feat: frontend improvements [\#5](https://github.com/geertmeersman/ev-charger-server/pull/5) ([geertmeersman](https://github.com/geertmeersman))
+- chore: Discord notification on release [\#4](https://github.com/geertmeersman/ev-charger-server/pull/4) ([geertmeersman](https://github.com/geertmeersman))
+
 ## [v0.2.0](https://github.com/geertmeersman/ev-charger-server/tree/v0.2.0) (2025-07-10)
 
 [Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v0.1.0...v0.2.0)
