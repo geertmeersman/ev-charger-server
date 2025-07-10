@@ -596,7 +596,15 @@
     function getCookie(name) {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop().split(';').shift();
+      if (parts.length === 2) {
+        const raw = parts.pop().split(';').shift();
+        try {
+          return decodeURIComponent(raw);
+        } catch (e) {
+          console.warn(`Failed to decode cookie "${name}" – returning raw value`, e);
+          return raw;
+        }
+      }
       return '';
     }
 
@@ -728,11 +736,9 @@
       const lat = parseFloat(el.dataset.lat);
       const lng = parseFloat(el.dataset.lng);
       const mapContainer = document.getElementById(`map-${chargerId}`);
-      const editContainer = document.getElementById(`edit-${chargerId}`);
 
       if (mapContainer.classList.contains('hidden')) {
         mapContainer.classList.remove('hidden');
-        editContainer.classList.remove('hidden');
 
         if (!mapInstances[chargerId]) {
           const map = L.map(`map-${chargerId}`, {
@@ -773,7 +779,6 @@
         }
       } else {
         mapContainer.classList.add('hidden');
-        editContainer.classList.add('hidden');
       }
     }
 
@@ -887,6 +892,15 @@
             alert(err.message || 'Could not download report.');
           }
         },
+        init() {
+          const ns = window.EvDash = window.EvDash || {};
+          ns.loadSessions = this.loadSessions.bind(this);
+
+          // Clean-up on component teardown
+          this.$root.addEventListener('alpine:destroy', () => {
+            delete ns.loadSessions;
+          });
+        }
       };
     }
   </script>
