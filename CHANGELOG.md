@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.4.2](https://github.com/geertmeersman/ev-charger-server/tree/v0.4.2) (2025-07-10)
+
+[Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v0.4.1...v0.4.2)
+
+**Merged pull requests:**
+
+- fix: expose alpine function loadSessions to external callers [\#8](https://github.com/geertmeersman/ev-charger-server/pull/8) ([geertmeersman](https://github.com/geertmeersman))
+
 ## [v0.4.1](https://github.com/geertmeersman/ev-charger-server/tree/v0.4.1) (2025-07-10)
 
 [Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v0.4.0...v0.4.1)
