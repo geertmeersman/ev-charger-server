@@ -1943,9 +1943,8 @@ async def import_csv(
     tags=["Reports"],
 )
 def download_report(
-    username: str = Query(...),
-    start_date: str = Query(..., description="YYYY-MM-DD"),
-    end_date: str = Query(..., description="YYYY-MM-DD"),
+    start_date: Optional[str] = Query(None, description="YYYY-MM-DD"),
+    end_date: Optional[str] = Query(None, description="YYYY-MM-DD"),
     tag: Optional[str] = Query(None, description="Partial tag name"),
     charger_ids: Optional[List[str]] = Query(
         None, description="List of charger_id strings (e.g., garage, home)"
@@ -1954,10 +1953,11 @@ def download_report(
         False, description="Group sessions by tag instead of charger"
     ),
     db: Session = Depends(get_db),
+    user=Depends(get_user_by_api_key),
 ):
     try:
-        start_dt = datetime.strptime(start_date, "%Y-%m-%d")
-        end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+        start_dt = datetime.strptime(start_date, "%Y-%m-%d") if start_date else None
+        end_dt = datetime.strptime(end_date, "%Y-%m-%d") if end_date else None
     except ValueError:
         raise HTTPException(
             status_code=400, detail="Invalid date format. Use YYYY-MM-DD."
@@ -1966,7 +1966,7 @@ def download_report(
     try:
         grouped = fetch_user_sessions(
             db=db,
-            username=username,
+            username=user.username,
             start_date=start_dt,
             end_date=end_dt,
             tag=tag,
@@ -1982,17 +1982,18 @@ def download_report(
         )
 
     buffer = BytesIO()
-    generate_pdf_report(username, grouped, start_dt, end_dt, buffer, group_by_tag)
+    generate_pdf_report(user.username, grouped, start_dt, end_dt, buffer, group_by_tag)
     buffer.seek(0)
 
-    filename = f"{APP_NAME}_charging_report_{start_date}_to_{end_date}"
-
+    filename = f"{APP_NAME}_charging_report"
+    if start_date:
+        filename += f"_from_{start_date}"
+    if end_date:
+        filename += f"_to_{end_date}"
     if group_by_tag:
         filename += "_grouped_by_tag"
-
     if tag:
         filename += f"_tag_{tag}"
-
     if charger_ids:
         filename += "_chargers_" + "_".join(charger_ids)
 
