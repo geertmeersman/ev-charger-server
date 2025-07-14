@@ -86,7 +86,34 @@
 
 ## 🐳 Docker Support
 
+**Docker compose example:**
+
 **Dockerfile example:**
+
+```yaml
+version: '3.8'
+
+services:
+  ev-charger-server:
+    image: geertmeersman/ev-charger-server:latest
+    container_name: ev-charger-server
+    restart: unless-stopped
+    environment:
+      SMTP_SERVER: ${SMTP_SERVER}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USERNAME: ${SMTP_USERNAME}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      FROM_EMAIL: ${FROM_EMAIL}
+      SECRET_KEY: ${SECRET_KEY}
+      BASE_URL: ${BASE_URL}
+    tty: true
+    ports:
+      - "8000:8000"
+    volumes:
+      - /volumes/ev-charger-server:/app/data
+```
+
+---
 
 ```dockerfile
 FROM python:3.11-slim
