@@ -1,5 +1,14 @@
 # Changelog
 
+## [v0.4.3](https://github.com/geertmeersman/ev-charger-server/tree/v0.4.3) (2025-07-14)
+
+[Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v0.4.2...v0.4.3)
+
+**Merged pull requests:**
+
+- docs: docker-compose example [\#10](https://github.com/geertmeersman/ev-charger-server/pull/10) ([geertmeersman](https://github.com/geertmeersman))
+- fix: cookie selected\_charger removed on login [\#9](https://github.com/geertmeersman/ev-charger-server/pull/9) ([geertmeersman](https://github.com/geertmeersman))
+
 ## [v0.4.2](https://github.com/geertmeersman/ev-charger-server/tree/v0.4.2) (2025-07-10)
 
 [Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v0.4.1...v0.4.2)
