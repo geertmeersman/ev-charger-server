@@ -118,6 +118,7 @@ def make_aware(dt):
 def create_auth_cookie(response: Response, username: str):
     token = cookie_serializer.dumps({"username": username})
     response.set_cookie(key="session", value=token, httponly=True)
+    response.delete_cookie("selected_charger", path="/")
 
 
 def get_user_from_cookie(
@@ -248,7 +249,7 @@ class ChargingSessionOut(BaseModel):
     session_uuid: str
     charger_id: str
     cost: float
-    tag: Optional[str] = None
+    tag: Optional[str] = Field(default=None)
     start_time: datetime
     end_time: datetime
     duration_seconds: int
