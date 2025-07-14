@@ -1,3 +1,8 @@
+# ⚡ EV Charger Server
+
+**EV Charger Server** is a full-featured, API-driven and web-based system for managing electric vehicle (EV) charging sessions, stations, and users. It supports both REST APIs and a modern dashboard for users, along with secure device integration via API keys.
+
+---
 
 [![maintainer](https://img.shields.io/badge/maintainer-Geert%20Meersman-green?style=for-the-badge&logo=github)](https://github.com/geertmeersman)
 [![buyme_coffee](https://img.shields.io/badge/Buy%20me%20an%20Omer-donate-yellow?style=for-the-badge&logo=buymeacoffee)](https://www.buymeacoffee.com/geertmeersman)
@@ -16,10 +21,6 @@
 
 ![Docker Pulls](https://img.shields.io/docker/pulls/geertmeersman/ev-charger-server)
 ![Docker Image Version](https://img.shields.io/docker/v/geertmeersman/ev-charger-server?label=docker%20image%20version)
-
-# ⚡ EV Charger Server
-
-**EV Charger Server** is a full-featured, API-driven and web-based system for managing electric vehicle (EV) charging sessions, stations, and users. It supports both REST APIs and a modern dashboard for users, along with secure device integration via API keys.
 
 ---
 
@@ -141,7 +142,7 @@ docker run -e WEB_PORT=8080 -p 8080:8080 \
 
 ## 📂 Project Structure
 
-```
+```bashPPP
 app/
 ├── main.py               # FastAPI app entry point
 ├── database.py           # DB engine and session factory
