@@ -88,8 +88,6 @@
 
 **Docker compose example:**
 
-**Dockerfile example:**
-
 ```yaml
 version: '3.8'
 
@@ -114,6 +112,8 @@ services:
 ```
 
 ---
+
+**Dockerfile example:**
 
 ```dockerfile
 FROM python:3.11-slim
