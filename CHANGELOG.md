@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.5.0](https://github.com/geertmeersman/ev-charger-server/tree/v0.5.0) (2025-07-18)
+
+[Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v0.4.3...v0.5.0)
+
+**Merged pull requests:**
+
+- feat: readonly dashboard with configurable background color [\#11](https://github.com/geertmeersman/ev-charger-server/pull/11) ([geertmeersman](https://github.com/geertmeersman))
+
 ## [v0.4.3](https://github.com/geertmeersman/ev-charger-server/tree/v0.4.3) (2025-07-14)
 
 [Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v0.4.2...v0.4.3)
