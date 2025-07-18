@@ -1899,8 +1899,8 @@ def show_manage_charger_form(
     )
 
 
-@app.get("/dashboard/readonly/", response_class=HTMLResponse, tags=["UI"])
-@app.get("/dashboard/readonly/{charger_id}", response_class=HTMLResponse, tags=["UI"])
+@app.get("/dashboard/widget/", response_class=HTMLResponse, tags=["UI"])
+@app.get("/dashboard/widget/{charger_id}", response_class=HTMLResponse, tags=["UI"])
 def show_charger_view(
     request: Request,
     charger_id: Optional[str] = None,
@@ -1923,7 +1923,7 @@ def show_charger_view(
     else:
         chargers = db.query(models.Charger).all()
     return templates.TemplateResponse(
-        "readonly_charger.html",
+        "charger_widget.html",
         {
             "request": request,
             "appName": APP_NAME,
