@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon/favicon-16x16.png">
+    <link rel="icon" href="/static/favicon/favicon.ico" type="image/x-icon">
+    <link rel="manifest" href="/static/favicon/site.webmanifest">
+    <title>{{appName}} - {% block title %}{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.fullscreen@1.6.0/Control.FullScreen.css" />
+    <script src="https://unpkg.com/leaflet.fullscreen@1.6.0/Control.FullScreen.js"></script>
+</head>
+
+<body style="background-color: #{{ bg_color }}"
+    class="min-h-screen flex flex-col justify-center items-center font-sans">
+    {% block content %}{% endblock %}
+
+    <script>
+        function formatDuration(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            let result = '';
+            if (hours > 0) result += `${hours}h`;
+            if (minutes > 0) result += `${minutes}m`;
+            if (hours === 0 && minutes === 0) result += `${seconds}s`;
+            return result;
+        }
+    </script>
+    <script src="/static/js/charger_info.js"></script>
+</body>
+
+</html>

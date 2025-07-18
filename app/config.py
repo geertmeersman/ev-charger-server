@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -19,6 +20,8 @@ BASE_URL = os.getenv("BASE_URL")
 APP_NAME = os.getenv("APP_NAME", "EV Charger Server")
 REPORT_TITLE = os.getenv("REPORT_TITLE", "Charging Sessions Report")
 APP_INFO = f"{APP_NAME} {VERSION}"
+READONLY_MODE = os.getenv("READONLY", "true").lower() in ("true", "1", "yes")
+HEX_COLOR_RE = re.compile(r"^([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$")
 
 # Validate required variables
 missing_vars = []

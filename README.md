@@ -69,6 +69,7 @@
   - Monthly/daily energy graphs
   - Import session data from CSV (e.g. Nexxtmove)
   - Account and profile management
+  - Readonly mode to show the charger information on a display
 
 ---
 
@@ -164,6 +165,7 @@ docker run -e WEB_PORT=8080 -p 8080:8080 \
 | `SECRET_KEY`     | Cryptographic key for session/token signing|
 | `BASE_URL`       | Public base URL (used in email links, UI)  |
 | `WEB_PORT`       | (Optional) HTTP port (default: `8000`)     |
+| `READ_ONLY`      | (Optional) Readonly mode, to enable readonly dahsboard views |
 
 ---
 

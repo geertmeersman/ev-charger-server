@@ -46,7 +46,15 @@ from app import database, models
 from app.database import engine
 from app.reports.generator import fetch_user_sessions, generate_pdf_report
 
-from .config import APP_INFO, APP_NAME, BASE_URL, SECRET_KEY, VERSION
+from .config import (
+    APP_INFO,
+    APP_NAME,
+    BASE_URL,
+    HEX_COLOR_RE,
+    READONLY_MODE,
+    SECRET_KEY,
+    VERSION,
+)
 from .utils.email import send_email
 from .utils.session_csv import convert_csv_row
 
@@ -110,6 +118,10 @@ def make_aware(dt):
     if dt.tzinfo is None:
         return dt.replace(tzinfo=timezone.utc)
     return dt
+
+
+def is_valid_hex_color(color: Optional[str]) -> bool:
+    return bool(color and HEX_COLOR_RE.match(color))
 
 
 # --- Authentication Helpers ---
@@ -967,7 +979,6 @@ def delete_charger_sessions(
     db: Session = Depends(get_db),
     auth_user=Depends(get_user_by_api_key),
 ):
-
     # Query for chargers owned by the authenticated user
     charger_query = db.query(models.Charger).filter(
         models.Charger.owner_id == auth_user.id
@@ -1884,6 +1895,43 @@ def show_manage_charger_form(
             "appInfo": APP_INFO,
             "now": datetime.utcnow,
             "charger": charger,  # Pass charger model directly to template
+        },
+    )
+
+
+@app.get("/dashboard/readonly/", response_class=HTMLResponse, tags=["UI"])
+@app.get("/dashboard/readonly/{charger_id}", response_class=HTMLResponse, tags=["UI"])
+def show_charger_view(
+    request: Request,
+    charger_id: Optional[str] = None,
+    bg: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+):
+    bg = bg if is_valid_hex_color(bg) else "0D0D0D"
+
+    if not READONLY_MODE:
+        raise HTTPException(
+            status_code=403,
+            detail="Read-only dashboard is disabled",
+        )
+
+    if charger_id:
+        charger = db.query(models.Charger).filter_by(charger_id=charger_id).first()
+        if not charger:
+            raise HTTPException(status_code=404, detail="Charger not found")
+        chargers = [charger]
+    else:
+        chargers = db.query(models.Charger).all()
+    return templates.TemplateResponse(
+        "readonly_charger.html",
+        {
+            "request": request,
+            "appName": APP_NAME,
+            "appInfo": APP_INFO,
+            "now": datetime.utcnow,
+            "chargers": chargers,
+            "readonly": True,
+            "bg_color": bg,
         },
     )
 
