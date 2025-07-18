@@ -1,0 +1,11 @@
+{% extends "base_charger.html" %}
+
+{% block title %}View Charger{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-4xl flex flex-col justify-center items-center min-h-[calc(100vh-150px)] px-4">
+    {% for charger in chargers %}
+    {% include "components/charger_card.html" with context %}
+    {% endfor %}
+</div>
+{% endblock %}
