@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.5.1](https://github.com/geertmeersman/ev-charger-server/tree/v0.5.1) (2025-07-18)
+
+[Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v0.5.0...v0.5.1)
+
+**Merged pull requests:**
+
+- chore: change path for read only to widget [\#12](https://github.com/geertmeersman/ev-charger-server/pull/12) ([geertmeersman](https://github.com/geertmeersman))
+
 ## [v0.5.0](https://github.com/geertmeersman/ev-charger-server/tree/v0.5.0) (2025-07-18)
 
 [Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v0.4.3...v0.5.0)
