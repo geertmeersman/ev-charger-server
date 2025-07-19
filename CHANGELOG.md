@@ -1,5 +1,14 @@
 # Changelog
 
+## [v0.6.0](https://github.com/geertmeersman/ev-charger-server/tree/v0.6.0) (2025-07-19)
+
+[Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v0.5.1...v0.6.0)
+
+**Merged pull requests:**
+
+- feat: Added a "Full Width" toggle in the profile dropdown [\#14](https://github.com/geertmeersman/ev-charger-server/pull/14) ([geertmeersman](https://github.com/geertmeersman))
+- fix: charger status not loaded in widget mode when not authenticated [\#13](https://github.com/geertmeersman/ev-charger-server/pull/13) ([geertmeersman](https://github.com/geertmeersman))
+
 ## [v0.5.1](https://github.com/geertmeersman/ev-charger-server/tree/v0.5.1) (2025-07-18)
 
 [Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v0.5.0...v0.5.1)
