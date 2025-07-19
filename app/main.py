@@ -1579,6 +1579,38 @@ def get_all_charger_statuses(
     return results
 
 
+@app.get("/dashboard/widget/statuses", tags=["UI"])
+def get_all_widget_charger_statuses(db: Session = Depends(get_db)):
+
+    if not READONLY_MODE:
+        raise HTTPException(
+            status_code=403,
+            detail="Read-only dashboard is disabled",
+        )
+
+    chargers = db.query(models.Charger).all()
+    results = {}
+
+    for charger in chargers:
+        latest = (
+            db.query(models.ChargingStatus)
+            .filter_by(charger_id=charger.id)
+            .order_by(models.ChargingStatus.timestamp.desc())
+            .first()
+        )
+        if latest:
+            results[charger.charger_id] = {
+                "status": latest.status,
+                "energy": round(latest.energy, 2),
+                "seconds": latest.seconds,
+                "cost": latest.cost,
+                "phase_count": latest.phase_count,
+                "timestamp": latest.timestamp.isoformat(),
+            }
+
+    return results
+
+
 @app.get("/dashboard/change-password", response_class=HTMLResponse, tags=["User"])
 def show_change_password_form(
     request: Request,

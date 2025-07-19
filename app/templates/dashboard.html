@@ -334,6 +334,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     let API_KEY = "{{ user.api_key }}";
+    let WIDGET_MODE = false;
     const selected_charger_id = {{ selected_charger | tojson }};
 
     const dailyCtx = document.getElementById('dailyChart').getContext('2d');
