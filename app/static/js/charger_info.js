@@ -1,5 +1,6 @@
 function fetchStatuses() {
-    fetch("/dashboard/statuses")
+    const url = WIDGET_MODE ? "/dashboard/widget/statuses" : "/dashboard/statuses";
+    fetch(url)
         .then(res => res.json())
         .then(data => {
             for (const [chargerId, info] of Object.entries(data)) {
