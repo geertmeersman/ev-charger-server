@@ -33,6 +33,8 @@
       <span>{{appName}}</span>
     </div>
 
+
+
     <!-- Admin info + dropdown -->
     <div class="flex items-center space-x-4">
       <!-- Charger selector -->
@@ -88,6 +90,12 @@
           class="absolute right-0 z-50 mt-2 w-40 rounded-md shadow-lg bg-zinc-800 border border-gray-700">
           <a href="/dashboard/profile"
             class="block px-4 py-2 text-sm text-gray-300 hover:bg-zinc-700 hover:text-white">👤 Profile</a>
+
+          <span class="block px-4 py-2 text-sm text-gray-300 hover:bg-zinc-700 hover:text-white">
+            🖥️ <label for="layoutToggle" class="text-sm">Full Width</label>
+            <input type="checkbox" id="layoutToggle" class="toggle" onchange="toggleLayout(this.checked)">
+          </span>
+
           <a href="/dashboard/create-charger"
             class="block px-4 py-2 text-sm text-gray-300 hover:bg-zinc-700 hover:text-white">⚡ Create Charger</a>
           <a href="/dashboard/logout" class="block px-4 py-2 text-sm text-red-400 hover:bg-zinc-700 hover:text-white">🚪
@@ -99,7 +107,7 @@
   </header>
 
 
-  <main class="w-full max-w-7xl p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-screen-xl mx-auto">
+  <main id="dashboardMain" class="w-full max-w-7xl p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-screen-xl mx-auto">
 
     {% if chargers|length == 0 %}
     <!-- No chargers -->
@@ -610,8 +618,7 @@
     }
 
     function setCookie(name, value, days = 365) {
-      const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
-      document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+      document.cookie = `${name}=${encodeURIComponent(value)}; expires=31536000; path=/`;
     }
 
     async function deleteSession(sessionUuid) {
@@ -642,11 +649,6 @@
 
     yearSelect.addEventListener('change', () => loadData(yearSelect.value));
     //document.getElementById('generateApiKey').addEventListener('click', generateApiKey);
-
-    document.addEventListener("DOMContentLoaded", () => {
-      // Initialize
-      loadData();
-    });
 
     function renderPaginationControls(current, totalPages) {
       const container = document.getElementById('paginationControls');
@@ -816,6 +818,33 @@
         }
       };
     }
+
+    function toggleLayout(isFullWidth) {
+      const main = document.getElementById('dashboardMain');
+      if (isFullWidth) {
+        main.classList.remove('lg:grid-cols-2', 'max-w-7xl');
+        main.classList.add('grid-cols-1', 'max-w-full');
+      } else {
+        main.classList.remove('max-w-full');
+        main.classList.add('lg:grid-cols-2', 'max-w-7xl');
+      }
+      setCookie('dashboard_full_width', isFullWidth)
+    }
+
+    function setCookie(name, value, days = 365) {
+      const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
+      document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+    }
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Initialize
+      loadData();
+      const isFullWidth = getCookie("dashboard_full_width") === "true";
+      document.getElementById("layoutToggle").checked = isFullWidth;
+      toggleLayout(isFullWidth);
+    });
+
   </script>
 
 
