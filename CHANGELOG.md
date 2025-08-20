@@ -1,5 +1,15 @@
 # Changelog
 
+## [v1.0.0](https://github.com/geertmeersman/ev-charger-server/tree/v1.0.0) (2025-08-20)
+
+[Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v0.6.0...v1.0.0)
+
+**Merged pull requests:**
+
+- fix: Pagination - expose loadSessions globally and update controls to… [\#17](https://github.com/geertmeersman/ev-charger-server/pull/17) ([geertmeersman](https://github.com/geertmeersman))
+- chore\(deps\): bump actions/checkout from 4 to 5 [\#16](https://github.com/geertmeersman/ev-charger-server/pull/16) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump hugo19941994/delete-draft-releases from 1.0.1 to 2.0.0 [\#15](https://github.com/geertmeersman/ev-charger-server/pull/15) ([dependabot[bot]](https://github.com/apps/dependabot))
+
 ## [v0.6.0](https://github.com/geertmeersman/ev-charger-server/tree/v0.6.0) (2025-07-19)
 
 [Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v0.5.1...v0.6.0)
