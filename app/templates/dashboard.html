@@ -20,6 +20,7 @@
         endDate = getCookie('end_date') || '';
         downloadTag = getCookie('download_tag') || '';
         downloadGroupByTag = getCookie('download_group_by_tag') === 'true';
+        init();
         loadSessions(1, startDate, endDate);
       ">
   <!-- Header -->
@@ -660,7 +661,7 @@
       prev.textContent = 'Prev';
       prev.disabled = current === 1;
       prev.className = 'px-3 py-1 rounded-md bg-gray-700/80 hover:bg-gray-500/80 text-white text-sm transition border border-green-400 cursor-pointer';
-      prev.onclick = () => loadSessions(current - 1);
+      prev.onclick = () => window.EvDash.loadSessions(current - 1);
       container.appendChild(prev);
 
       // Page numbers (you can customize how many you want visible)
@@ -674,7 +675,7 @@
           btn.textContent = i;
           btn.disabled = i === current;
           btn.className = `px-3 py-1 rounded ${i === current ? 'bg-green-400 text-white' : 'text-black bg-gray-200'}`;
-          btn.onclick = () => loadSessions(i);
+          btn.onclick = () => window.EvDash.loadSessions(i);
           container.appendChild(btn);
         } else if (
           i === current - 3 ||
@@ -693,7 +694,7 @@
       next.textContent = 'Next';
       next.disabled = current === totalPages;
       next.className = 'px-3 py-1 rounded-md bg-gray-700/80 hover:bg-gray-500/80 text-white text-sm transition border border-green-400 cursor-pointer';
-      next.onclick = () => loadSessions(current + 1);
+      next.onclick = () => window.EvDash.loadSessions(current + 1);
       container.appendChild(next);
     }
   </script>
