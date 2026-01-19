@@ -27,14 +27,14 @@
 <!-- TOC -->
 
 - [⚡ EV Charger Server](#-ev-charger-server)
-    - [🚀 Features](#-features)
-    - [🛠️ Tech Stack](#-tech-stack)
-    - [🐳 Docker Support](#-docker-support)
-    - [⚙️ Environment Variables](#-environment-variables)
-    - [📂 Project Structure](#-project-structure)
-    - [📘 API Documentation](#-api-documentation)
-    - [🔐 Security Note](#-security-note)
-    - [📄 License](#-license)
+  - [🚀 Features](#-features)
+  - [🛠️ Tech Stack](#-tech-stack)
+  - [🐳 Docker Support](#-docker-support)
+  - [⚙️ Environment Variables](#-environment-variables)
+  - [📂 Project Structure](#-project-structure)
+  - [📘 API Documentation](#-api-documentation)
+  - [🔐 Security Note](#-security-note)
+  - [📄 License](#-license)
 
 <!-- /TOC -->
 
@@ -122,6 +122,14 @@ FROM python:3.11-slim
 # Set environment variables
 ENV TZ=Europe/Brussels
 
+# Install build dependencies for pycairo and other packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libcairo2-dev \
+    pkg-config \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY scripts/start.sh /start.sh
 
 WORKDIR /app
@@ -134,6 +142,7 @@ COPY . .
 RUN chmod +x /start.sh
 
 ENTRYPOINT ["/start.sh"]
+
 ```
 
 **Build and run:**
