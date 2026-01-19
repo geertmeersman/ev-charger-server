@@ -1,5 +1,18 @@
 # Changelog
 
+## [v2.0.0](https://github.com/geertmeersman/ev-charger-server/tree/v2.0.0) (2026-01-19)
+
+[Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v1.0.0...v2.0.0)
+
+**Merged pull requests:**
+
+- chore: requirements cleanup [\#23](https://github.com/geertmeersman/ev-charger-server/pull/23) ([geertmeersman](https://github.com/geertmeersman))
+- fix: Update Dockerfile [\#22](https://github.com/geertmeersman/ev-charger-server/pull/22) ([toSvenson](https://github.com/toSvenson))
+- chore\(deps\): bump actions/checkout from 5 to 6 [\#21](https://github.com/geertmeersman/ev-charger-server/pull/21) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump github/codeql-action from 3 to 4 [\#20](https://github.com/geertmeersman/ev-charger-server/pull/20) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump actions/github-script from 7 to 8 [\#19](https://github.com/geertmeersman/ev-charger-server/pull/19) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump actions/setup-python from 5 to 6 [\#18](https://github.com/geertmeersman/ev-charger-server/pull/18) ([dependabot[bot]](https://github.com/apps/dependabot))
+
 ## [v1.0.0](https://github.com/geertmeersman/ev-charger-server/tree/v1.0.0) (2025-08-20)
 
 [Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v0.6.0...v1.0.0)
