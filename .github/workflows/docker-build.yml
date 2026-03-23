@@ -49,7 +49,7 @@ jobs:
           addSections: '{"documentation":{"prefix":"**Documentation:**","labels":["documentation"]}}'
 
       - name: ✅　Commit release notes
-        uses: EndBug/add-and-commit@v9
+        uses: EndBug/add-and-commit@v10
         with:
           message: Commit release notes and bump version ${{ steps.release_drafter.outputs.tag_name }}
 
