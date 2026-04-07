@@ -1,5 +1,20 @@
 # Changelog
 
+## [v3.0.0](https://github.com/geertmeersman/ev-charger-server/tree/v3.0.0) (2026-04-07)
+
+[Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v2.0.0...v3.0.0)
+
+**Merged pull requests:**
+
+- fix: Enhanced precision for cost per kWh input [\#31](https://github.com/geertmeersman/ev-charger-server/pull/31) ([geertmeersman](https://github.com/geertmeersman))
+- chore\(deps\): bump hugo19941994/delete-draft-releases from 2.0.0 to 3.0.0 [\#30](https://github.com/geertmeersman/ev-charger-server/pull/30) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump EndBug/add-and-commit from 9 to 10 [\#29](https://github.com/geertmeersman/ev-charger-server/pull/29) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump release-drafter/release-drafter from 6 to 7 [\#28](https://github.com/geertmeersman/ev-charger-server/pull/28) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump docker/login-action from 3 to 4 [\#27](https://github.com/geertmeersman/ev-charger-server/pull/27) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump docker/build-push-action from 6 to 7 [\#26](https://github.com/geertmeersman/ev-charger-server/pull/26) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump docker/setup-buildx-action from 3 to 4 [\#25](https://github.com/geertmeersman/ev-charger-server/pull/25) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump actions/checkout from 5 to 6 [\#24](https://github.com/geertmeersman/ev-charger-server/pull/24) ([dependabot[bot]](https://github.com/apps/dependabot))
+
 ## [v2.0.0](https://github.com/geertmeersman/ev-charger-server/tree/v2.0.0) (2026-01-19)
 
 [Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v1.0.0...v2.0.0)
