@@ -1,5 +1,9 @@
 # Changelog
 
+## [v3.0.1](https://github.com/geertmeersman/ev-charger-server/tree/v3.0.1) (2026-04-07)
+
+[Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v3.0.0...v3.0.1)
+
 ## [v3.0.0](https://github.com/geertmeersman/ev-charger-server/tree/v3.0.0) (2026-04-07)
 
 [Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v2.0.0...v3.0.0)
