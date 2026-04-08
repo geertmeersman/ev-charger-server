@@ -1,8 +1,12 @@
 # Changelog
 
-## [v3.0.1](https://github.com/geertmeersman/ev-charger-server/tree/v3.0.1) (2026-04-07)
+## [v3.0.1](https://github.com/geertmeersman/ev-charger-server/tree/v3.0.1) (2026-04-08)
 
 [Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v3.0.0...v3.0.1)
+
+**Merged pull requests:**
+
+- fix: Pin dependencies to fix TemplateResponse/Jinja2 incompatibility [\#32](https://github.com/geertmeersman/ev-charger-server/pull/32) ([geertmeersman](https://github.com/geertmeersman))
 
 ## [v3.0.0](https://github.com/geertmeersman/ev-charger-server/tree/v3.0.0) (2026-04-07)
 
