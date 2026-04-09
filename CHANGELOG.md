@@ -1,5 +1,13 @@
 # Changelog
 
+## [v3.0.2](https://github.com/geertmeersman/ev-charger-server/tree/v3.0.2) (2026-04-09)
+
+[Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v3.0.1...v3.0.2)
+
+**Merged pull requests:**
+
+- fix: calculate cost if not provided in the post data [\#33](https://github.com/geertmeersman/ev-charger-server/pull/33) ([geertmeersman](https://github.com/geertmeersman))
+
 ## [v3.0.1](https://github.com/geertmeersman/ev-charger-server/tree/v3.0.1) (2026-04-08)
 
 [Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v3.0.0...v3.0.1)
