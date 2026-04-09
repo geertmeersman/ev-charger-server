@@ -936,6 +936,12 @@ def charger_session(
     session_data = session.dict()
     session_data["charger_id"] = charger_obj.id
 
+    # Calculate cost if not provided
+    if session_data.get("cost") is None:
+        session_data["cost"] = charger_obj.cost_kwh * session_data.get(
+            "energy_charged_kwh", 0
+        )
+
     db_session = models.ChargingSession(**session_data)
     db.add(db_session)
     db.commit()
