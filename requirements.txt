@@ -23,4 +23,4 @@ matplotlib==3.8.4
 pillow>=10.3.0
 reportlab==4.1.0
 chardet==5.2.0
-svglib==1.5.1
+svglib==1.6.0
