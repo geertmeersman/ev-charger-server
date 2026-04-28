@@ -7,7 +7,7 @@ jinja2==3.1.6
 
 python-multipart==0.0.26
 email-validator==2.3.0
-apscheduler==3.10.4
+apscheduler==3.11.2
 aiofiles==25.1.0
 itsdangerous==2.2.0
 
