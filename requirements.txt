@@ -19,7 +19,7 @@ passlib==1.7.4
 python-dateutil==2.9.0.post0
 
 ruff==0.3.5
-matplotlib==3.10.8
+matplotlib==3.10.9
 pillow>=12.2.0
 reportlab==4.5.0
 chardet==7.4.3
