@@ -18,7 +18,7 @@ bcrypt==5.0.0
 passlib==1.7.4
 python-dateutil==2.9.0.post0
 
-ruff==0.15.17
+ruff==0.15.18
 matplotlib==3.11.0
 pillow>=12.2.0
 reportlab==4.5.1
