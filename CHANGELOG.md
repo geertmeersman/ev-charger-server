@@ -1,5 +1,13 @@
 # Changelog
 
+## [v4.0.1](https://github.com/geertmeersman/ev-charger-server/tree/v4.0.1) (2026-07-13)
+
+[Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v4.0.0...v4.0.1)
+
+**Merged pull requests:**
+
+- refactor: update context variable names in template responses for cla… [\#92](https://github.com/geertmeersman/ev-charger-server/pull/92) ([geertmeersman](https://github.com/geertmeersman))
+
 ## [v4.0.0](https://github.com/geertmeersman/ev-charger-server/tree/v4.0.0) (2026-07-13)
 
 [Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v3.0.2...v4.0.0)
