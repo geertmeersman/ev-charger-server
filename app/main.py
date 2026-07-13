@@ -337,10 +337,7 @@ class UserAuthIn(BaseModel):
 
 @app.get("/user/register", response_class=HTMLResponse, tags=["User"])
 def show_registration_form(request: Request, msg: Optional[str] = None):
-    return templates.TemplateResponse(
-        "register.html",
-        {
-            "request": request,
+    return templates.TemplateResponse(request=request, name="register.html", context={
             "msg": msg,
             "now": datetime.utcnow,
             "appName": APP_NAME,
@@ -379,10 +376,7 @@ def register_user(info: UserRegisterIn, db: Session = Depends(get_db)):
 
 @app.get("/user/reset-password", response_class=HTMLResponse, tags=["User"])
 def show_password_reset_form(request: Request, msg: Optional[str] = None):
-    return templates.TemplateResponse(
-        "reset_password.html",
-        {
-            "request": request,
+    return templates.TemplateResponse(request=request, name="reset_password.html", context={
             "msg": msg,
             "now": datetime.utcnow,
             "appName": APP_NAME,
@@ -435,10 +429,7 @@ def show_password_reset_token_form(
         token_ts = datetime.fromisoformat(data["ts"])
         if not user.pwd_reset_requested_at or token_ts != user.pwd_reset_requested_at:
             raise HTTPException(400, detail="Invalid or expired token")
-        return templates.TemplateResponse(
-            "reset_password_token.html",
-            {
-                "request": request,
+        return templates.TemplateResponse(request=request, name="reset_password_token.html", context={
                 "token": token,
                 "msg": msg,
                 "email": email,
@@ -474,10 +465,7 @@ def reset_password_token(
 
 @app.get("/user/username-recovery", response_class=HTMLResponse, tags=["User"])
 def show_username_recovery_form(request: Request):
-    return templates.TemplateResponse(
-        "username_recovery.html",
-        {
-            "request": request,
+    return templates.TemplateResponse(request=request, name="username_recovery.html", context={
             "now": datetime.utcnow,
             "appName": APP_NAME,
             "appInfo": APP_INFO,
@@ -1181,10 +1169,7 @@ def dashboard_login(
             pass  # Ignore invalid cookie/session errors
 
     # Show login page if not authenticated
-    return templates.TemplateResponse(
-        "login.html",
-        {
-            "request": request,
+    return templates.TemplateResponse(request=request, name="login.html", context={
             "msg": msg,
             "now": datetime.utcnow,
             "appName": APP_NAME,
@@ -1254,10 +1239,7 @@ def dashboard(
     # Optionally, sort all sessions by start_time descending
     sessions.sort(key=lambda s: s.start_time, reverse=True)
 
-    response = templates.TemplateResponse(
-        "dashboard.html",
-        {
-            "request": request,
+    response = templates.TemplateResponse(request=request, name="dashboard.html", context={
             "user": user,
             "chargers": chargers,
             "selected_charger": charger,
@@ -1477,7 +1459,7 @@ def dashboard_monthly_sessions(
 
 @app.get("/dashboard/daily_sessions", tags=["UI"])
 def dashboard_daily_sessions(
-    month: Optional[str] = Query(None, regex=r"^\d{4}-\d{2}$"),
+    month: Optional[str] = Query(None, pattern=r"^\d{4}-\d{2}$"),
     charger_id: Optional[int] = Query(None, description="Filter by charger ID"),
     db: Session = Depends(get_db),
     user=Depends(get_user_from_cookie),
@@ -1622,10 +1604,7 @@ def show_change_password_form(
     request: Request,
     user: models.User = Depends(get_user_from_cookie),
 ):
-    return templates.TemplateResponse(
-        "change_password.html",
-        {
-            "request": request,
+    return templates.TemplateResponse(request=request, name="change_password.html", context={
             "user": user,
             "now": datetime.utcnow,
             "appName": APP_NAME,
@@ -1645,10 +1624,7 @@ def change_password(
 ):
     # Validate current password
     if not bcrypt.checkpw(current_password.encode(), user.password.encode()):
-        return templates.TemplateResponse(
-            "change_password.html",
-            {
-                "request": request,
+        return templates.TemplateResponse(request=request, name="change_password.html", context={
                 "user": user,
                 "error": "Current password is incorrect.",
                 "now": datetime.utcnow,
@@ -1660,10 +1636,7 @@ def change_password(
 
     # Validate new password match
     if new_password != confirm_new_password:
-        return templates.TemplateResponse(
-            "change_password.html",
-            {
-                "request": request,
+        return templates.TemplateResponse(request=request, name="change_password.html", context={
                 "user": user,
                 "error": "New passwords do not match.",
                 "now": datetime.utcnow,
@@ -1677,10 +1650,7 @@ def change_password(
     user.password = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()).decode()
     db.commit()
 
-    return templates.TemplateResponse(
-        "change_password.html",
-        {
-            "request": request,
+    return templates.TemplateResponse(request=request, name="change_password.html", context={
             "user": user,
             "success": "Your password has been updated.",
             "now": datetime.utcnow,
@@ -1696,10 +1666,7 @@ def show_profile(
     db: Session = Depends(get_db),
     user: models.User = Depends(get_user_from_cookie),
 ):
-    return templates.TemplateResponse(
-        "profile.html",
-        {
-            "request": request,
+    return templates.TemplateResponse(request=request, name="profile.html", context={
             "user": user,
             # add any other needed context
             "now": datetime.utcnow,
@@ -1717,10 +1684,7 @@ def update_profile(
     user: models.User = Depends(get_user_from_cookie),
 ):
     if email == user.email:
-        return templates.TemplateResponse(
-            "profile.html",
-            {
-                "request": request,
+        return templates.TemplateResponse(request=request, name="profile.html", context={
                 "user": user,
                 "success": "No changes made.",
                 "now": datetime.utcnow,
@@ -1730,10 +1694,7 @@ def update_profile(
         )
 
     if "@" not in email:
-        return templates.TemplateResponse(
-            "profile.html",
-            {
-                "request": request,
+        return templates.TemplateResponse(request=request, name="profile.html", context={
                 "user": user,
                 "error": "Invalid email address.",
                 "now": datetime.utcnow,
@@ -1744,10 +1705,7 @@ def update_profile(
 
     # Check if new email is already used
     if db.query(models.User).filter(models.User.email == email).first():
-        return templates.TemplateResponse(
-            "profile.html",
-            {
-                "request": request,
+        return templates.TemplateResponse(request=request, name="profile.html", context={
                 "user": user,
                 "error": "That email is already in use.",
                 "now": datetime.utcnow,
@@ -1782,10 +1740,7 @@ def update_profile(
         },
     )
 
-    return templates.TemplateResponse(
-        "profile.html",
-        {
-            "request": request,
+    return templates.TemplateResponse(request=request, name="profile.html", context={
             "user": user,
             "success": f"A confirmation link was sent to {email}. Please check your inbox.",
             "now": datetime.utcnow,
@@ -1828,10 +1783,7 @@ def confirm_email_change(
     user.email_change_token = None
     db.commit()
 
-    return templates.TemplateResponse(
-        "profile.html",
-        {
-            "request": request,
+    return templates.TemplateResponse(request=request, name="profile.html", context={
             "user": user,
             "success": "Email address successfully updated.",
             "now": datetime.utcnow,
@@ -1848,10 +1800,7 @@ def show_csv_import_form(
     user=Depends(get_user_from_cookie),
 ):
     chargers = db.query(models.Charger).filter_by(owner_id=user.id).all()
-    return templates.TemplateResponse(
-        "import_nexxtmove_csv.html",
-        {
-            "request": request,
+    return templates.TemplateResponse(request=request, name="import_nexxtmove_csv.html", context={
             "chargers": chargers,
             "now": datetime.utcnow,
             "apiKey": user.api_key,
@@ -1875,10 +1824,7 @@ def show_create_session_form(
         .order_by(models.Charger.charger_id.asc())
         .all()
     )
-    return templates.TemplateResponse(
-        "create_session.html",
-        {
-            "request": request,
+    return templates.TemplateResponse(request=request, name="create_session.html", context={
             "chargers": chargers,
             "now": datetime.utcnow,
             "apiKey": user.api_key,
@@ -1893,10 +1839,7 @@ def show_create_charger_form(
     request: Request,
     user: models.User = Depends(get_user_from_cookie),
 ):
-    return templates.TemplateResponse(
-        "create_charger.html",
-        {
-            "request": request,
+    return templates.TemplateResponse(request=request, name="create_charger.html", context={
             "user": user,
             "apiKey": user.api_key,
             "appName": APP_NAME,
@@ -1923,10 +1866,7 @@ def show_manage_charger_form(
             status_code=404, detail="Charger not found or not owned by user"
         )
 
-    return templates.TemplateResponse(
-        "manage_charger.html",
-        {
-            "request": request,
+    return templates.TemplateResponse(request=request, name="manage_charger.html", context={
             "user": user,
             "apiKey": user.api_key,
             "appName": APP_NAME,
@@ -1960,10 +1900,7 @@ def show_charger_view(
         chargers = [charger]
     else:
         chargers = db.query(models.Charger).all()
-    return templates.TemplateResponse(
-        "charger_widget.html",
-        {
-            "request": request,
+    return templates.TemplateResponse(request=request, name="charger_widget.html", context={
             "appName": APP_NAME,
             "appInfo": APP_INFO,
             "now": datetime.utcnow,
