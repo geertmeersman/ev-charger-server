@@ -1,0 +1,36 @@
+name: PR - Skip changelog
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  skip_changelog:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Add skip-changelog label if no code changes
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+
+            const codePaths = ["app/", "scripts/", "requirements.txt"];
+
+            const hasCodeChanges = files.some(f =>
+              codePaths.some(p => f.filename.startsWith(p) || f.filename === p)
+            );
+
+            if (!hasCodeChanges) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: ['skip-changelog']
+              });
+            }
