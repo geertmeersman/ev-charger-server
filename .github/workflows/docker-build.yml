@@ -18,6 +18,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: 🏷️ Delete existing tag if present
+        run: git push origin --delete "${{ steps.semver.outputs.next }}" || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: 📝　Draft release
         uses: release-drafter/release-drafter@v7
         id: release_drafter
