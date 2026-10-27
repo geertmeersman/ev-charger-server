@@ -1,5 +1,18 @@
 # Changelog
 
+## [v4.0.3](https://github.com/geertmeersman/ev-charger-server/tree/v4.0.3) (2026-10-27)
+
+[Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v4.0.2...v4.0.3)
+
+**Merged pull requests:**
+
+- chore\(deps\): bump github/codeql-action from 4.39.0 to 4.39.1 [\#156](https://github.com/geertmeersman/ev-charger-server/pull/156) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): update pillow requirement from \>=12.3.0 to \>=13.0.0 [\#155](https://github.com/geertmeersman/ev-charger-server/pull/155) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump sqlalchemy from 2.1.4 to 2.1.6 [\#154](https://github.com/geertmeersman/ev-charger-server/pull/154) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump chardet from 7.6.0 to 7.7.0 [\#153](https://github.com/geertmeersman/ev-charger-server/pull/153) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump svglib from 2.3.0 to 2.3.2 [\#152](https://github.com/geertmeersman/ev-charger-server/pull/152) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump reportlab from 5.0.1 to 5.1.0 [\#151](https://github.com/geertmeersman/ev-charger-server/pull/151) ([dependabot[bot]](https://github.com/apps/dependabot))
+
 ## [v4.0.2](https://github.com/geertmeersman/ev-charger-server/tree/v4.0.2) (2026-10-23)
 
 [Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v4.0.1...v4.0.2)
