@@ -21,6 +21,6 @@ python-dateutil==2.9.0.post0
 ruff==0.17.1
 matplotlib==3.11.2
 pillow>=13.0.0
-reportlab==5.0.1
+reportlab==5.1.0
 chardet==7.7.0
 svglib==2.3.2
