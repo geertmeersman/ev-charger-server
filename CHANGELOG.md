@@ -1,5 +1,13 @@
 # Changelog
 
+## [v4.0.4](https://github.com/geertmeersman/ev-charger-server/tree/v4.0.4) (2026-10-27)
+
+[Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v4.0.3...v4.0.4)
+
+**Merged pull requests:**
+
+- chore: remove Discord references [\#157](https://github.com/geertmeersman/ev-charger-server/pull/157) ([geertmeersman](https://github.com/geertmeersman))
+
 ## [v4.0.3](https://github.com/geertmeersman/ev-charger-server/tree/v4.0.3) (2026-10-27)
 
 [Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v4.0.2...v4.0.3)
