@@ -77,7 +77,10 @@ jobs:
               assignees: [context.payload.pull_request.user.login],
             });
 
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
   docker-build-test:
     name: Docker build test
     runs-on: ubuntu-latest
