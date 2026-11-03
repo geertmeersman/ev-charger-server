@@ -77,6 +77,22 @@ jobs:
               assignees: [context.payload.pull_request.user.login],
             });
 
+
+  docker-build-test:
+    name: Docker build test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build Docker image (no push)
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: false
+
   skip-changelog:
     name: Skip changelog
     runs-on: ubuntu-latest
