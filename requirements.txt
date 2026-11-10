@@ -16,7 +16,7 @@ httpx==0.28.1
 
 bcrypt==5.0.0
 passlib==1.7.4
-python-dateutil==3.0.0
+python-dateutil==4.0.0
 
 ruff==0.17.3
 matplotlib==3.11.2
