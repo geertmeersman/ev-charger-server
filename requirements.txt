@@ -5,7 +5,7 @@ sqlalchemy==2.1.6
 pydantic==2.14.3
 jinja2==3.1.6
 
-python-multipart==0.0.32
+python-multipart==0.0.33
 email-validator==2.3.0
 apscheduler==3.11.3
 aiofiles==25.1.0
