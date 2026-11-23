@@ -1,5 +1,35 @@
 # Changelog
 
+## [v4.0.6](https://github.com/geertmeersman/ev-charger-server/tree/v4.0.6) (2026-11-19)
+
+[Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v4.0.5...v4.0.6)
+
+## [v4.0.5](https://github.com/geertmeersman/ev-charger-server/tree/v4.0.5) (2026-11-19)
+
+[Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v4.0.4...v4.0.5)
+
+**Implemented enhancements:**
+
+- feat: add docker build test to PR workflow [\#164](https://github.com/geertmeersman/ev-charger-server/pull/164) ([geertmeersman](https://github.com/geertmeersman))
+
+**Merged pull requests:**
+
+- chore\(deps\): bump fastapi from 0.162.0 to 0.162.7 [\#173](https://github.com/geertmeersman/ev-charger-server/pull/173) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump svglib from 2.3.2 to 2.4.0 [\#172](https://github.com/geertmeersman/ev-charger-server/pull/172) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump ruff from 0.17.4 to 0.17.5 [\#171](https://github.com/geertmeersman/ev-charger-server/pull/171) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump python-dateutil from 3.0.0 to 4.0.0 [\#170](https://github.com/geertmeersman/ev-charger-server/pull/170) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump pydantic from 2.14.2 to 2.14.3 [\#169](https://github.com/geertmeersman/ev-charger-server/pull/169) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump ruff from 0.17.3 to 0.17.4 [\#168](https://github.com/geertmeersman/ev-charger-server/pull/168) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump python-multipart from 0.0.32 to 0.0.33 [\#167](https://github.com/geertmeersman/ev-charger-server/pull/167) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump sqlalchemy from 2.1.6 to 2.1.8 [\#166](https://github.com/geertmeersman/ev-charger-server/pull/166) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump github/codeql-action from 4.39.1 to 4.39.3 [\#165](https://github.com/geertmeersman/ev-charger-server/pull/165) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump fastapi from 0.143.3 to 0.162.0 [\#163](https://github.com/geertmeersman/ev-charger-server/pull/163) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump python-dateutil from 2.9.0.post0 to 3.0.0 [\#162](https://github.com/geertmeersman/ev-charger-server/pull/162) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump pydantic from 2.14.1 to 2.14.2 [\#161](https://github.com/geertmeersman/ev-charger-server/pull/161) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump ruff from 0.17.1 to 0.17.3 [\#160](https://github.com/geertmeersman/ev-charger-server/pull/160) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump pytest from 9.1.1 to 9.2.0 [\#159](https://github.com/geertmeersman/ev-charger-server/pull/159) ([dependabot[bot]](https://github.com/apps/dependabot))
+- ci: combine PR workflows into single pr.yml [\#158](https://github.com/geertmeersman/ev-charger-server/pull/158) ([geertmeersman](https://github.com/geertmeersman))
+
 ## [v4.0.4](https://github.com/geertmeersman/ev-charger-server/tree/v4.0.4) (2026-10-27)
 
 [Full Changelog](https://github.com/geertmeersman/ev-charger-server/compare/v4.0.3...v4.0.4)
